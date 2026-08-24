@@ -1,0 +1,75 @@
+{% extends "tracker/base.html" %}
+{% block title %}Create Account - Amar Hishab{% endblock %}
+{% block content %}
+<style>
+.auth-wrap{min-height:calc(100vh - 110px);display:grid;place-items:center;padding:34px 0}
+.auth-shell{width:min(940px,100%);display:grid;grid-template-columns:1fr 1fr;background:#171a21;border:1px solid #262a33;border-radius:24px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.28)}
+.auth-brand{padding:48px;background:linear-gradient(145deg,#1d2140,#171a21 62%);display:flex;flex-direction:column;justify-content:center}
+.auth-logo{font-size:42px;margin-bottom:18px}.auth-brand h2{font-size:32px;margin:0 0 12px}.auth-brand p{color:#a7adba;line-height:1.65;margin:0;max-width:350px}
+.auth-points{margin-top:28px;display:grid;gap:12px;color:#cfd3da;font-size:14px}.auth-point{display:flex;gap:10px;align-items:center}
+.auth-card{padding:42px}.auth-card h1{font-size:27px;margin:0 0 8px}.auth-sub{color:#8f95a1;margin:0 0 26px}
+.google-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:#fff;color:#202124;border:0;padding:12px;border-radius:10px;font-weight:700;cursor:pointer;text-decoration:none}
+.google-icon{font-weight:800;font-size:18px}
+.divider{display:flex;align-items:center;gap:12px;color:#707683;font-size:12px;margin:22px 0}.divider:before,.divider:after{content:"";height:1px;background:#2b303a;flex:1}
+.field{margin-bottom:16px}.field label{display:block;font-size:13px;color:#c9cdd4;margin-bottom:7px}.field input{width:100%;padding:11px 12px;background:#11141a;border:1px solid #2b303a;color:#f2f3f5;border-radius:9px;outline:none}.field input:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.12)}
+.auth-submit{width:100%;padding:12px;border-radius:9px;margin-top:3px}.auth-links{margin-top:18px;text-align:center;font-size:13px}.auth-links a{color:#aab0ff;text-decoration:none}.errorlist{color:#fca5a5;font-size:13px;margin:6px 0 12px;padding-left:18px}
+@media(max-width:760px){.auth-shell{grid-template-columns:1fr}.auth-brand{display:none}.auth-card{padding:28px 22px}.auth-wrap{padding:18px 0}}
+</style>
+
+<div class="auth-wrap">
+  <div class="auth-shell">
+    <section class="auth-brand">
+      <div class="auth-logo">💰</div>
+      <h2>Amar Hishab</h2>
+      <p data-i18n="auth_tagline">Build your private financial space and keep every taka accounted for.</p>
+      <div class="auth-points">
+        <div class="auth-point">✓ <span data-i18n="signup_point1">One place for all your accounts</span></div>
+        <div class="auth-point">✓ <span data-i18n="signup_point2">Automatic income & expense summaries</span></div>
+        <div class="auth-point">✓ <span data-i18n="signup_point3">Your data stays tied to your account</span></div>
+      </div>
+    </section>
+    <section class="auth-card">
+      <h1 data-i18n="signup_title">Create your account</h1>
+      <p class="auth-sub" data-i18n="signup_sub">Start tracking your money in a smarter way.</p>
+
+      <a class="google-btn" href="{% url 'google_login' %}">
+        <span class="google-icon">G</span>
+        <span data-i18n="google_signup">Sign up with Google</span>
+      </a>
+
+      <div class="divider"><span data-i18n="or">OR</span></div>
+
+      <form method="post" action="{% url 'account_signup' %}">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        {% for field in form %}
+          <div class="field">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {{ field.errors }}
+          </div>
+        {% endfor %}
+        {% if redirect_field_value %}<input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">{% endif %}
+        <button class="auth-submit" type="submit" data-i18n="signup_button">Create Account</button>
+      </form>
+
+      <div class="auth-links">
+        <span data-i18n="already">Already have an account?</span>
+        <a href="{% url 'account_login' %}" data-i18n="signin_link">Sign in</a>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const authExtra = {
+  en:{auth_tagline:"Build your private financial space and keep every taka accounted for.",signup_point1:"One place for all your accounts",signup_point2:"Automatic income & expense summaries",signup_point3:"Your data stays tied to your account",signup_title:"Create your account",signup_sub:"Start tracking your money in a smarter way.",google_signup:"Sign up with Google",or:"OR",signup_button:"Create Account",already:"Already have an account?",signin_link:"Sign in"},
+  bn:{auth_tagline:"আপনার ব্যক্তিগত আর্থিক জায়গা তৈরি করুন এবং প্রতিটি টাকার হিসাব রাখুন।",signup_point1:"সব অ্যাকাউন্ট এক জায়গায়",signup_point2:"স্বয়ংক্রিয় আয় ও খরচের সারসংক্ষেপ",signup_point3:"আপনার হিসাব আপনার অ্যাকাউন্টের সাথেই থাকবে",signup_title:"আপনার অ্যাকাউন্ট তৈরি করুন",signup_sub:"আরও স্মার্টভাবে আপনার অর্থের হিসাব রাখা শুরু করুন।",google_signup:"Google দিয়ে সাইন আপ করুন",or:"অথবা",signup_button:"অ্যাকাউন্ট তৈরি করুন",already:"আগেই অ্যাকাউন্ট আছে?",signin_link:"সাইন ইন"}
+};
+const baseApply = applyLanguage;
+applyLanguage = function(lang){ baseApply(lang); document.querySelectorAll("[data-i18n]").forEach(el=>{if(authExtra[lang][el.dataset.i18n])el.textContent=authExtra[lang][el.dataset.i18n]}); };
+document.addEventListener("DOMContentLoaded",()=>applyLanguage(localStorage.getItem("financeTrackerLanguage")||"en"));
+</script>
+{% endblock %}

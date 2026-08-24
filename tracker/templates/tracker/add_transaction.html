@@ -1,0 +1,18 @@
+{% extends "tracker/base.html" %}{% block title %}Add Transaction{% endblock %}
+{% block content %}<div class="top"><div><h1 data-i18n="add_title">Add Transaction</h1><div class="muted" data-i18n="no_hidden_fee">The amount you enter is recorded exactly. No automatic fee or 0.03 is deducted.</div></div></div>
+<div class="card form-card"><form method="post">{% csrf_token %}
+<div class="field"><label data-i18n="transaction_type">Transaction Type</label><select id="txn_type" name="txn_type" required><option value="expense" data-i18n="expense">Expense</option><option value="income" data-i18n="income">Income</option></select></div>
+<div class="field"><label id="categoryLabel" data-i18n="expense_category_label">Expense Category</label><select id="category" name="category" required></select></div>
+<div class="field"><label id="methodLabel" data-i18n="payment_method">Payment Method</label><select id="payment_method" name="payment_method" required>{% for pm in payment_methods %}<option value="{{pm.id}}" data-method-type="{{pm.method_type}}" data-method-name="{{pm.name|escapejs}}">{{pm.name}} — {{pm.get_method_type_display}}</option>{% endfor %}</select></div>
+<div class="field" id="otherSourceField" style="display:none"><label data-i18n="other_source">Where did it come from?</label><input id="other_source" name="other_source" maxlength="200" placeholder="e.g. Friend / Gift / Other source"></div>
+<div class="field"><label data-i18n="amount">Amount</label><input name="amount" type="number" min="0.01" step="0.01" placeholder="1000.00" required></div>
+<div class="field"><label data-i18n="date">Date</label><input name="date" type="date" value="{% now 'Y-m-d' %}" required></div>
+<div class="field"><label data-i18n="description_optional">Description (optional)</label><textarea name="note" placeholder="e.g. House rent / Received from home / Internet bill"></textarea></div>
+<button class="btn primary" style="width:100%" data-i18n="save">Save Transaction</button></form></div>
+<script>
+const incomeCats=[{% for c in income_categories %}{id:{{c.id}},nameEn:"{{c.icon|escapejs}} {{c.name|escapejs}}",nameBn:"{{c.icon|escapejs}} {{c.name_bn|default:c.name|escapejs}}"},{% endfor %}],expenseCats=[{% for c in expense_categories %}{id:{{c.id}},nameEn:"{{c.icon|escapejs}} {{c.name|escapejs}}",nameBn:"{{c.icon|escapejs}} {{c.name_bn|default:c.name|escapejs}}"},{% endfor %}];
+function currentLang(){return localStorage.getItem('financeTrackerLanguage')||'en'}
+function renderCats(){const income=document.getElementById('txn_type').value==='income',cats=income?incomeCats:expenseCats,sel=document.getElementById('category'),lang=currentLang();sel.innerHTML='';cats.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=lang==='bn'?c.nameBn:c.nameEn;sel.appendChild(o)});document.getElementById('categoryLabel').textContent=I18N[lang][income?'income_source_label':'expense_category_label'];document.getElementById('methodLabel').textContent=I18N[lang][income?'received_method':'payment_method'];toggleOtherSource()}
+function toggleOtherSource(){const income=document.getElementById('txn_type').value==='income',opt=document.querySelector('#payment_method option:checked'),show=income&&opt&&opt.dataset.methodType==='other';document.getElementById('otherSourceField').style.display=show?'block':'none'}
+document.getElementById('txn_type').addEventListener('change',renderCats);document.getElementById('payment_method').addEventListener('change',toggleOtherSource);renderCats();const oldApply=applyLanguage;applyLanguage=function(l){oldApply(l);renderCats()};
+</script>{% endblock %}

@@ -1,5 +1,9 @@
 """Django settings for Amar Hishab — personal finance tracker."""
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-change-this-before-production'
@@ -66,8 +70,8 @@ AUTHENTICATION_BACKENDS = [
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'APP': {
-            'client_id': '955369106229-1otccdalsp4l4kkehm0ffsm4t0bnasfg.apps.googleusercontent.com',
-            'secret': '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',
+            'client_id': os.getenv('GOOGLE_CLIENT_ID'),
+            'secret': os.getenv('GOOGLE_CLIENT_SECRET'),
         },
         'SCOPE': [
             'profile',

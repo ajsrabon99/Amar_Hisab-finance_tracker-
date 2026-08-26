@@ -68,7 +68,7 @@ class Category(models.Model):
         settings.AUTH_USER_MODEL, 
         on_delete=models.CASCADE,
         related_name="categories", 
-        null=True,  # ✅ Keep null=True for global categories
+        null=True,  
         blank=True
     )
     name = models.CharField(max_length=100)
@@ -184,3 +184,464 @@ class Transfer(models.Model):
         super().delete(*args, **kwargs)
         from_method.recalculate_balance()
         to_method.recalculate_balance()
+        
+
+# ============================================================
+# RECURRING TRANSACTIONS
+# ============================================================
+
+class RecurringTransaction(models.Model):
+    """
+    Automatically creates normal Transaction records on a schedule.
+    """
+
+    DAILY = "daily"
+    WEEKLY = "weekly"
+    MONTHLY = "monthly"
+    YEARLY = "yearly"
+
+    FREQUENCIES = [
+        (DAILY, "Daily"),
+        (WEEKLY, "Weekly"),
+        (MONTHLY, "Monthly"),
+        (YEARLY, "Yearly"),
+    ]
+
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="recurring_transactions",
+    )
+
+    name = models.CharField(
+        max_length=150,
+        help_text="Example: Internet Bill, House Rent, Salary"
+    )
+
+    txn_type = models.CharField(
+        max_length=10,
+        choices=Transaction.TXN_TYPES,
+    )
+
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.PROTECT,
+        related_name="recurring_transactions",
+    )
+
+    payment_method = models.ForeignKey(
+        PaymentMethod,
+        on_delete=models.PROTECT,
+        related_name="recurring_transactions",
+    )
+
+    amount = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+    )
+
+    frequency = models.CharField(
+        max_length=20,
+        choices=FREQUENCIES,
+        default=MONTHLY,
+    )
+
+    start_date = models.DateField(
+        default=timezone.now,
+    )
+
+    next_run_date = models.DateField()
+
+    note = models.CharField(
+        max_length=500,
+        blank=True,
+        default="",
+    )
+
+    is_active = models.BooleanField(
+        default=True,
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True,
+    )
+
+    class Meta:
+        ordering = ["next_run_date", "name"]
+
+    def __str__(self):
+        return f"{self.name} - ৳{self.amount} ({self.get_frequency_display()})"
+
+
+# ============================================================
+# FINANCIAL GOALS
+# ============================================================
+
+class Goal(models.Model):
+    """
+    Personal savings goals such as Eid, Travel, Laptop etc.
+    """
+
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="goals",
+    )
+
+    name = models.CharField(
+        max_length=150,
+    )
+
+    description = models.CharField(
+        max_length=500,
+        blank=True,
+        default="",
+    )
+
+    target_amount = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+    )
+
+    saved_amount = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        default=0,
+    )
+
+    deadline = models.DateField(
+        null=True,
+        blank=True,
+    )
+
+    icon = models.CharField(
+        max_length=10,
+        default="🎯",
+        blank=True,
+    )
+
+    is_completed = models.BooleanField(
+        default=False,
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True,
+    )
+
+    class Meta:
+        ordering = ["is_completed", "deadline", "-created_at"]
+
+    def __str__(self):
+        return f"{self.name} - ৳{self.saved_amount}/৳{self.target_amount}"
+
+    @property
+    def remaining_amount(self):
+        remaining = self.target_amount - self.saved_amount
+        return max(remaining, Decimal("0"))
+
+    @property
+    def progress_percentage(self):
+        if self.target_amount <= 0:
+            return Decimal("0")
+
+        percentage = (
+            self.saved_amount / self.target_amount
+        ) * Decimal("100")
+
+        return min(percentage, Decimal("100"))
+
+    def update_completion(self):
+        if self.saved_amount >= self.target_amount:
+            self.saved_amount = self.target_amount
+            self.is_completed = True
+        else:
+            self.is_completed = False
+
+        self.save(
+            update_fields=[
+                "saved_amount",
+                "is_completed",
+                "updated_at",
+            ]
+        )
+
+
+class GoalContribution(models.Model):
+    """
+    History of money added to or removed from a goal.
+    """
+
+    ADD = "add"
+    WITHDRAW = "withdraw"
+
+    TYPES = [
+        (ADD, "Add Money"),
+        (WITHDRAW, "Withdraw Money"),
+    ]
+
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="goal_contributions",
+    )
+
+    goal = models.ForeignKey(
+        Goal,
+        on_delete=models.CASCADE,
+        related_name="contributions",
+    )
+
+    payment_method = models.ForeignKey(
+        PaymentMethod,
+        on_delete=models.PROTECT,
+        related_name="goal_contributions",
+    )
+
+    contribution_type = models.CharField(
+        max_length=10,
+        choices=TYPES,
+    )
+
+    amount = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+    )
+
+    date = models.DateField(
+        default=timezone.now,
+    )
+
+    note = models.CharField(
+        max_length=500,
+        blank=True,
+        default="",
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    class Meta:
+        ordering = ["-date", "-id"]
+
+    def __str__(self):
+        sign = "+" if self.contribution_type == self.ADD else "-"
+        return f"{self.goal.name}: {sign}৳{self.amount}"
+
+
+# ============================================================
+# DEBT TRACKER
+# ============================================================
+
+class Debt(models.Model):
+    """
+    Tracks money borrowed or lent by the user.
+    """
+
+    BORROWED = "borrowed"
+    LENT = "lent"
+
+    DEBT_TYPES = [
+        (BORROWED, "I Owe"),
+        (LENT, "Owed to Me"),
+    ]
+
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="debts",
+    )
+
+    person_name = models.CharField(
+        max_length=150,
+    )
+
+    debt_type = models.CharField(
+        max_length=20,
+        choices=DEBT_TYPES,
+    )
+
+    description = models.CharField(
+        max_length=300,
+        blank=True,
+        default="",
+    )
+
+    principal_amount = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+    )
+
+    interest_amount = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        default=0,
+    )
+
+    paid_amount = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        default=0,
+    )
+
+    start_date = models.DateField(
+        default=timezone.now,
+    )
+
+    due_date = models.DateField(
+        null=True,
+        blank=True,
+    )
+
+    note = models.CharField(
+        max_length=500,
+        blank=True,
+        default="",
+    )
+
+    is_closed = models.BooleanField(
+        default=False,
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True,
+    )
+
+    class Meta:
+        ordering = ["is_closed", "due_date", "-created_at"]
+
+    def __str__(self):
+        return f"{self.person_name} - ৳{self.remaining_amount}"
+
+    @property
+    def total_amount(self):
+        return self.principal_amount + self.interest_amount
+
+    @property
+    def remaining_amount(self):
+        remaining = self.total_amount - self.paid_amount
+        return max(remaining, Decimal("0"))
+
+    @property
+    def progress_percentage(self):
+        if self.total_amount <= 0:
+            return Decimal("0")
+
+        percentage = (
+            self.paid_amount / self.total_amount
+        ) * Decimal("100")
+
+        return min(percentage, Decimal("100"))
+
+    @property
+    def status(self):
+        if self.is_closed or self.remaining_amount <= 0:
+            return "paid"
+
+        if self.due_date and self.due_date < timezone.localdate():
+            return "overdue"
+
+        if self.paid_amount > 0:
+            return "partial"
+
+        return "pending"
+
+
+class DebtPayment(models.Model):
+    """
+    Individual debt repayment history.
+    """
+
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="debt_payments",
+    )
+
+    debt = models.ForeignKey(
+        Debt,
+        on_delete=models.CASCADE,
+        related_name="payments",
+    )
+
+    payment_method = models.ForeignKey(
+        PaymentMethod,
+        on_delete=models.PROTECT,
+        related_name="debt_payments",
+    )
+
+    amount = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+    )
+
+    date = models.DateField(
+        default=timezone.now,
+    )
+
+    note = models.CharField(
+        max_length=500,
+        blank=True,
+        default="",
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    class Meta:
+        ordering = ["-date", "-id"]
+
+    def __str__(self):
+        return f"{self.debt.person_name}: ৳{self.amount}"
+    
+# ============================================================
+# USER PROFILE
+# ============================================================
+
+class Profile(models.Model):
+    """
+    Stores additional user profile information.
+    Each user has exactly one profile.
+    """
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="profile",
+    )
+
+    name = models.CharField(
+        max_length=150,
+        blank=True,
+        default="",
+    )
+
+    photo = models.ImageField(
+        upload_to="profile_photos/",
+        blank=True,
+        null=True,
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True,
+    )
+
+    def __str__(self):
+        return self.name or self.user.email

@@ -23,8 +23,11 @@ class PaymentMethod(models.Model):
     ]
 
     owner = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
-        related_name="payment_methods", null=True, blank=True
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE,
+        related_name="payment_methods",
+        null=False,  # ✅ Changed from null=True
+        blank=False  # ✅ Changed from blank=True
     )
     name = models.CharField(max_length=100)
     method_type = models.CharField(max_length=20, choices=METHOD_TYPES, default=OTHER)
@@ -62,13 +65,16 @@ class Category(models.Model):
     CATEGORY_TYPES = [(INCOME, "Income"), (EXPENSE, "Expense")]
 
     owner = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
-        related_name="categories", null=True, blank=True
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE,
+        related_name="categories", 
+        null=True,  # ✅ Keep null=True for global categories
+        blank=True
     )
     name = models.CharField(max_length=100)
     name_bn = models.CharField(max_length=100, blank=True, default="")
     category_type = models.CharField(max_length=10, choices=CATEGORY_TYPES)
-    icon = models.CharField(max_length=10, blank=True, default="")
+    icon = models.CharField(max_length=10, blank=True, default="📂")
 
     class Meta:
         verbose_name_plural = "Categories"
@@ -90,8 +96,11 @@ class Transaction(models.Model):
     TXN_TYPES = [(INCOME, "Income"), (EXPENSE, "Expense")]
 
     owner = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
-        related_name="transactions", null=True, blank=True
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE,
+        related_name="transactions",
+        null=False,  # ✅ Changed from null=True
+        blank=False  # ✅ Changed from blank=True
     )
     date = models.DateField(default=timezone.now)
     txn_type = models.CharField(max_length=10, choices=TXN_TYPES)
@@ -133,8 +142,11 @@ class Transfer(models.Model):
     """Moves money between a user's own accounts. It is never counted as income/expense."""
 
     owner = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
-        related_name="transfers", null=True, blank=True
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE,
+        related_name="transfers",
+        null=True,  # ✅ Changed from null=True
+        blank=True  # ✅ Changed from blank=True
     )
     date = models.DateField(default=timezone.now)
     from_method = models.ForeignKey(

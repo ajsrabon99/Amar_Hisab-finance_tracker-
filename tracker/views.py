@@ -72,38 +72,63 @@ def _ensure_default_methods(user):
 @login_required
 def dashboard(request):
     """Personal dashboard with exact balances and automatic summaries."""
-    _ensure_default_methods(request.user)
+    try:
+        _ensure_default_methods(request.user)
+    except Exception as e:
+        print(f"Error ensuring default methods: {e}")
+        # Continue even if default methods fail
+    
     year, month = _month_year_from_request(request)
-    payment_methods = list(_user_methods(request.user))
-    total_balance = sum((pm.current_balance for pm in payment_methods), Decimal("0"))
-
-    month_txns = Transaction.objects.filter(
-        owner=request.user, 
-        date__year=year, 
-        date__month=month
-    )
-    total_income = month_txns.filter(txn_type=Transaction.INCOME).aggregate(s=Sum("amount"))["s"] or Decimal("0")
-    total_expense = month_txns.filter(txn_type=Transaction.EXPENSE).aggregate(s=Sum("amount"))["s"] or Decimal("0")
-    net = total_income - total_expense
-
-    expense_by_category = month_txns.filter(txn_type=Transaction.EXPENSE).values(
-        "category__name", "category__icon"
-    ).annotate(total=Sum("amount")).order_by("-total")
     
-    income_by_source = month_txns.filter(txn_type=Transaction.INCOME).values(
-        "category__name", "category__icon"
-    ).annotate(total=Sum("amount")).order_by("-total")
-    
-    expense_by_method = month_txns.filter(txn_type=Transaction.EXPENSE).values(
-        "payment_method__name"
-    ).annotate(total=Sum("amount")).order_by("-total")
-    
-    income_by_method = month_txns.filter(txn_type=Transaction.INCOME).values(
-        "payment_method__name"
-    ).annotate(total=Sum("amount")).order_by("-total")
+    # Safely get payment methods
+    try:
+        payment_methods = list(_user_methods(request.user))
+        total_balance = sum((pm.current_balance for pm in payment_methods), Decimal("0"))
+    except Exception as e:
+        print(f"Error getting payment methods: {e}")
+        payment_methods = []
+        total_balance = Decimal("0")
 
-    recent_transactions = month_txns.select_related("category", "payment_method")[:20]
-    recent_transfers = Transfer.objects.filter(owner=request.user).select_related("from_method", "to_method")[:10]
+    # Safely get transactions
+    try:
+        month_txns = Transaction.objects.filter(
+            owner=request.user, 
+            date__year=year, 
+            date__month=month
+        )
+        total_income = month_txns.filter(txn_type=Transaction.INCOME).aggregate(s=Sum("amount"))["s"] or Decimal("0")
+        total_expense = month_txns.filter(txn_type=Transaction.EXPENSE).aggregate(s=Sum("amount"))["s"] or Decimal("0")
+        net = total_income - total_expense
+
+        expense_by_category = month_txns.filter(txn_type=Transaction.EXPENSE).values(
+            "category__name", "category__icon"
+        ).annotate(total=Sum("amount")).order_by("-total")
+        
+        income_by_source = month_txns.filter(txn_type=Transaction.INCOME).values(
+            "category__name", "category__icon"
+        ).annotate(total=Sum("amount")).order_by("-total")
+        
+        expense_by_method = month_txns.filter(txn_type=Transaction.EXPENSE).values(
+            "payment_method__name"
+        ).annotate(total=Sum("amount")).order_by("-total")
+        
+        income_by_method = month_txns.filter(txn_type=Transaction.INCOME).values(
+            "payment_method__name"
+        ).annotate(total=Sum("amount")).order_by("-total")
+
+        recent_transactions = month_txns.select_related("category", "payment_method")[:20]
+        recent_transfers = Transfer.objects.filter(owner=request.user).select_related("from_method", "to_method")[:10]
+    except Exception as e:
+        print(f"Error getting transactions: {e}")
+        total_income = Decimal("0")
+        total_expense = Decimal("0")
+        net = Decimal("0")
+        expense_by_category = []
+        income_by_source = []
+        expense_by_method = []
+        income_by_method = []
+        recent_transactions = []
+        recent_transfers = []
 
     context = {
         "payment_methods": payment_methods, 

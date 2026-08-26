@@ -23,184 +23,275 @@
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px}
 ::-webkit-scrollbar-thumb:hover{background:var(--accent)}
 
-/* Navigation */
-nav{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:7px;padding:12px 22px;background:#10141bcc;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--border);flex-wrap:wrap;transition:background 0.3s}
-[data-theme="light"] nav{background:#ffffffcc}
-[data-theme="system"] nav{background:#ffffffcc}
-@media (prefers-color-scheme: dark) {
-    [data-theme="system"] nav{background:#10141bcc}
+/* ============================================================
+   NAVIGATION — RESPONSIVE / USER FRIENDLY
+   ============================================================ */
+nav{
+    position:sticky;
+    top:0;
+    z-index:1000;
+    width:100%;
+    min-height:64px;
+    display:flex;
+    align-items:center;
+    gap:18px;
+    padding:10px 22px;
+    background:rgba(16,20,27,.92);
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+    border-bottom:1px solid var(--border);
+    transition:background .25s,border-color .25s;
+}
+[data-theme="light"] nav{background:rgba(255,255,255,.94)}
+[data-theme="system"] nav{background:rgba(255,255,255,.94)}
+@media (prefers-color-scheme:dark){
+    [data-theme="system"] nav{background:rgba(16,20,27,.92)}
 }
 
-.brand{font-weight:800;margin-right:12px;font-size:18px;display:flex;align-items:center;gap:6px}
-.brand span{color:#a79eff}
-
-/* Menu Toggle Button - Mobile */
-.menu-toggle{
-    display:none;
-    background:var(--panel2);
-    border:1px solid var(--border);
+.brand{
+    flex:0 0 auto;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:7px 8px;
+    margin:0;
+    border-radius:10px;
     color:var(--text);
-    font-size:22px;
-    cursor:pointer;
-    padding:6px 12px;
-    border-radius:8px;
-    transition:all 0.2s;
-    margin-left:auto;
-    line-height:1;
+    text-decoration:none;
+    font-size:18px;
+    font-weight:800;
+    letter-spacing:-.02em;
 }
-.menu-toggle:hover{
-    background:var(--border);
-}
-.menu-toggle.open{
-    background:var(--accent);
-    color:white;
-    border-color:var(--accent);
-}
+.brand:hover{background:var(--panel2)}
+.brand-mark{display:grid;place-items:center;width:28px;height:28px;border-radius:8px;background:var(--accent);color:#fff;font-size:11px;font-weight:900;letter-spacing:-.04em;line-height:1}
+.brand span{color:var(--text)}
 
 .nav-links{
     display:flex;
     align-items:center;
-    gap:7px;
-    flex-wrap:wrap;
+    gap:3px;
+    min-width:0;
 }
-
-nav a{padding:8px 11px;border-radius:9px;color:var(--muted);text-decoration:none;font-size:13px;transition:all 0.2s;white-space:nowrap}
-nav a:hover,nav a.active{background:var(--panel2);color:var(--text)}
-.nav-right{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.user{font-size:12px;color:var(--muted);padding:4px 8px;background:var(--panel2);border-radius:6px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-
-/* Language & Theme Controls - Desktop */
-.controls{display:flex;gap:4px;align-items:center}
-.controls .lang,.controls .theme-toggle{display:flex;padding:3px;background:var(--panel2);border:1px solid var(--border);border-radius:9px;gap:2px}
-.controls button{border:0;background:transparent;color:var(--muted);padding:6px 9px;border-radius:6px;cursor:pointer;font-weight:800;font-size:11px;transition:all 0.2s;font-family:inherit}
-.controls button:hover{color:var(--text)}
-.controls button.active{background:var(--accent);color:white}
-
-/* Mobile Menu Controls */
-.mobile-controls{
-    display:none;
-    flex-direction:column;
-    gap:8px;
-    width:100%;
-    padding:12px 0 4px;
-    border-top:1px solid var(--border);
-    margin-top:4px;
+.nav-links a{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:38px;
+    padding:8px 11px;
+    border-radius:9px;
+    color:var(--muted);
+    text-decoration:none;
+    font-size:13px;
+    font-weight:650;
+    white-space:nowrap;
+    transition:background .18s,color .18s,transform .18s;
 }
-.mobile-controls.open{
-    display:flex;
+.nav-links a:hover,
+.nav-links a.active{
+    background:var(--panel2);
+    color:var(--text);
 }
-.mobile-controls .control-group{
+.nav-links a:active{transform:scale(.98)}
+
+.nav-actions{
+    margin-left:auto;
     display:flex;
     align-items:center;
-    gap:10px;
-    flex-wrap:wrap;
+    gap:8px;
+    flex:0 0 auto;
 }
-.mobile-controls .control-label{
-    font-size:12px;
-    color:var(--muted);
-    font-weight:600;
-    min-width:70px;
-}
-.mobile-controls .lang{
+.user-chip{
+    max-width:180px;
+    min-height:36px;
     display:flex;
-    padding:3px;
-    background:var(--panel2);
+    align-items:center;
+    padding:0 11px;
     border:1px solid var(--border);
     border-radius:9px;
-    gap:2px;
+    background:var(--panel2);
+    color:var(--muted);
+    font-size:12px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
 }
-.mobile-controls .lang button{
+
+.controls{display:flex;align-items:center;gap:6px}
+.controls .lang,
+.controls .theme-toggle{
+    display:flex;
+    align-items:center;
+    padding:3px;
+    gap:2px;
+    background:var(--panel2);
+    border:1px solid var(--border);
+    border-radius:10px;
+}
+.controls button{
+    min-height:30px;
     border:0;
     background:transparent;
     color:var(--muted);
-    padding:6px 12px;
-    border-radius:6px;
+    padding:5px 9px;
+    border-radius:7px;
     cursor:pointer;
-    font-weight:700;
-    font-size:12px;
-    transition:all 0.2s;
+    font-weight:800;
+    font-size:11px;
+    transition:background .18s,color .18s;
     font-family:inherit;
 }
-.mobile-controls .lang button:hover{color:var(--text)}
-.mobile-controls .lang button.active{background:var(--accent);color:white}
+.controls button:hover{color:var(--text);background:var(--border)}
+.controls button.active{background:var(--accent);color:#fff}
 
-/* Theme Dropdown - Mobile */
-.theme-dropdown{
-    position:relative;
-    display:inline-block;
+.nav-logout{
+    min-height:36px;
+    padding:0 12px;
+    border:1px solid var(--border);
+    border-radius:9px;
+    background:var(--panel2);
+    color:var(--text);
+    font:700 12px inherit;
+    cursor:pointer;
+    transition:background .18s,border-color .18s,color .18s;
 }
+.nav-logout:hover{background:var(--red);border-color:var(--red);color:#fff}
+
+.menu-toggle{
+    display:none;
+    flex:0 0 auto;
+    width:40px;
+    height:40px;
+    margin-left:auto;
+    padding:0;
+    border:1px solid var(--border);
+    border-radius:10px;
+    background:var(--panel2);
+    color:var(--text);
+    font-size:20px;
+    line-height:1;
+    cursor:pointer;
+    transition:background .18s,border-color .18s,color .18s,transform .18s;
+}
+.menu-toggle:hover{background:var(--border)}
+.menu-toggle.open{background:var(--accent);border-color:var(--accent);color:#fff}
+
+.mobile-menu{
+    display:none;
+}
+
+/* Theme dropdown */
+.theme-dropdown{position:relative;display:inline-block}
 .theme-dropdown .theme-selector{
     display:flex;
     align-items:center;
-    gap:6px;
-    padding:6px 14px;
+    justify-content:space-between;
+    gap:8px;
+    min-width:112px;
+    min-height:36px;
+    padding:7px 11px;
     background:var(--panel2);
     border:1px solid var(--border);
     border-radius:9px;
     color:var(--text);
     font-size:12px;
-    font-weight:600;
+    font-weight:700;
     cursor:pointer;
-    transition:all 0.2s;
     font-family:inherit;
 }
-.theme-dropdown .theme-selector:hover{
-    background:var(--border);
-}
-.theme-dropdown .theme-selector .arrow{
-    font-size:10px;
-    transition:transform 0.3s;
-}
-.theme-dropdown .theme-selector .arrow.open{
-    transform:rotate(180deg);
-}
+.theme-dropdown .theme-selector:hover{background:var(--border)}
+.theme-dropdown .theme-selector .arrow{font-size:9px;transition:transform .2s}
+.theme-dropdown .theme-selector .arrow.open{transform:rotate(180deg)}
 .theme-dropdown .theme-options{
     display:none;
     position:absolute;
-    top:calc(100% + 4px);
-    left:0;
+    top:calc(100% + 7px);
+    right:0;
+    left:auto;
+    min-width:150px;
+    padding:5px;
     background:var(--panel);
     border:1px solid var(--border);
-    border-radius:9px;
-    padding:4px;
-    min-width:120px;
-    box-shadow:0 8px 24px rgba(0,0,0,0.3);
-    z-index:100;
+    border-radius:11px;
+    box-shadow:0 14px 35px rgba(0,0,0,.25);
+    z-index:1100;
 }
-.theme-dropdown .theme-options.open{
-    display:block;
-}
+.theme-dropdown .theme-options.open{display:block}
 .theme-dropdown .theme-options button{
+    width:100%;
     display:flex;
     align-items:center;
-    gap:8px;
-    width:100%;
-    padding:8px 12px;
+    gap:9px;
+    min-height:36px;
+    padding:8px 10px;
     border:0;
-    border-radius:6px;
+    border-radius:7px;
     background:transparent;
     color:var(--text);
-    font-size:12px;
+    font:600 12px inherit;
+    text-align:left;
     cursor:pointer;
-    transition:all 0.2s;
-    font-family:inherit;
 }
-.theme-dropdown .theme-options button:hover{
+.theme-dropdown .theme-options button:hover{background:var(--panel2)}
+.theme-dropdown .theme-options button.active{background:var(--accent);color:#fff}
+.theme-dropdown .theme-options button .check{margin-left:auto;opacity:0}
+.theme-dropdown .theme-options button.active .check{opacity:1}
+
+/* Mobile menu contents */
+.mobile-menu .mobile-user{
+    display:flex;
+    align-items:center;
+    min-height:42px;
+    padding:0 12px;
+    border:1px solid var(--border);
+    border-radius:10px;
+    background:var(--panel2);
+    color:var(--muted);
+    font-size:12px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+.mobile-menu .mobile-control-row{
+    display:grid;
+    grid-template-columns:86px 1fr;
+    align-items:center;
+    gap:10px;
+}
+.mobile-menu .mobile-label{
+    color:var(--muted);
+    font-size:12px;
+    font-weight:700;
+}
+.mobile-menu .mobile-lang{
+    display:flex;
+    width:max-content;
+    padding:3px;
+    gap:2px;
+    border:1px solid var(--border);
+    border-radius:9px;
     background:var(--panel2);
 }
-.theme-dropdown .theme-options button.active{
-    background:var(--accent);
-    color:white;
+.mobile-menu .mobile-lang button{
+    min-width:42px;
+    min-height:32px;
+    padding:6px 9px;
+    border:0;
+    border-radius:7px;
+    background:transparent;
+    color:var(--muted);
+    font:800 11px inherit;
+    cursor:pointer;
 }
-.theme-dropdown .theme-options button .check{
-    margin-left:auto;
-    opacity:0;
-    transition:opacity 0.2s;
-}
-.theme-dropdown .theme-options button.active .check{
-    opacity:1;
-}
+.mobile-menu .mobile-lang button:hover{color:var(--text)}
+.mobile-menu .mobile-lang button.active{background:var(--accent);color:#fff}
+.mobile-menu .mobile-theme{width:100%}
+.mobile-menu .mobile-theme .theme-selector{width:100%}
+.mobile-menu .mobile-theme .theme-options{right:0;left:0;width:100%}
+.mobile-menu .mobile-logout{width:100%;min-height:42px}
 
+/* ============================================================
+   CONTENT
+   ============================================================ */
 .container{max-width:1220px;margin:auto;padding:24px;transition:padding 0.3s}
 .top{display:flex;justify-content:space-between;align-items:end;gap:15px;margin-bottom:20px;flex-wrap:wrap}
 .top h1{margin:0;font-size:27px}.muted{color:var(--muted)}
@@ -253,276 +344,158 @@ textarea{min-height:90px;resize:vertical}
 /* ============================================================
    RESPONSIVE
    ============================================================ */
-
-/* Tablet & Mobile */
-@media(max-width:768px){
-    nav{padding:10px 14px}
-    
-    .menu-toggle{
-        display:block;
-    }
-    
-    .nav-links{
+@media(max-width:1050px){
+    nav{padding:9px 16px;gap:10px}
+    .nav-links{gap:2px}
+    .nav-links a{padding:8px 9px;font-size:12px}
+    .user-chip{max-width:130px}
+    .controls .theme-toggle{display:none}
+    .controls .lang{display:none}
+    .nav-actions .user-chip,.nav-actions .nav-logout{display:none}
+    .menu-toggle{display:block}
+    .mobile-menu{
+        position:absolute;
+        top:calc(100% + 8px);
+        left:10px;
+        right:10px;
         display:none;
-        flex-direction:column;
-        width:100%;
-        padding:12px 0 4px;
-        gap:4px;
-        border-top:1px solid var(--border);
-        margin-top:8px;
-        order:10;
+        padding:12px;
+        background:var(--panel);
+        border:1px solid var(--border);
+        border-radius:14px;
+        box-shadow:0 18px 45px rgba(0,0,0,.28);
     }
-    .nav-links.open{
-        display:flex;
-    }
-    .nav-links a{
-        width:100%;
-        padding:10px 12px;
-        font-size:14px;
-    }
-    
-    .mobile-controls{
-        display:none;
-        flex-direction:column;
-        gap:8px;
-        width:100%;
-        padding:12px 0 4px;
-        border-top:1px solid var(--border);
-        margin-top:4px;
-        order:11;
-    }
-    .mobile-controls.open{
-        display:flex;
-    }
-    .mobile-controls .control-group{
+    .mobile-menu.open{display:grid;gap:9px}
+    .mobile-menu .mobile-links{display:grid;gap:4px}
+    .mobile-menu .mobile-links a{
         display:flex;
         align-items:center;
-        gap:10px;
-        flex-wrap:wrap;
-        padding:4px 0;
-    }
-    .mobile-controls .control-label{
-        font-size:13px;
-        color:var(--text);
-        font-weight:600;
-        min-width:80px;
-    }
-    .mobile-controls .lang{
-        display:flex;
-        padding:2px;
-        background:var(--panel2);
-        border:1px solid var(--border);
+        min-height:42px;
+        padding:9px 12px;
         border-radius:9px;
-        gap:2px;
-    }
-    .mobile-controls .lang button{
-        padding:4px 10px;
-        font-size:11px;
-    }
-    
-    /* Theme Dropdown Mobile */
-    .theme-dropdown .theme-selector{
-        padding:4px 12px;
-        font-size:12px;
-    }
-    .theme-dropdown .theme-options{
-        min-width:140px;
-    }
-    .theme-dropdown .theme-options button{
-        padding:6px 12px;
-        font-size:12px;
-    }
-    
-    .nav-right .controls{
-        display:none;
-    }
-    
-    .nav-right{
-        width:100%;
-        justify-content:flex-start;
-        margin-left:0;
-        padding-top:8px;
-        border-top:1px solid var(--border);
-        margin-top:4px;
-        order:12;
-    }
-    .user{
-        max-width:100%;
+        color:var(--muted);
+        text-decoration:none;
         font-size:13px;
-        padding:6px 10px;
+        font-weight:650;
     }
-    .container{
-        padding:16px;
-    }
-    .top{
-        align-items:start;
-        flex-direction:column;
-    }
-    .top h1{
-        font-size:23px;
-    }
-    .two{
-        grid-template-columns:1fr;
-    }
-    .cards{
-        grid-template-columns:1fr 1fr;
-    }
+    .mobile-menu .mobile-links a:hover,
+    .mobile-menu .mobile-links a.active{background:var(--panel2);color:var(--text)}
+    .mobile-divider{height:1px;background:var(--border);margin:2px 0}
 }
 
-/* Small Mobile */
-@media(max-width:480px){
-    nav{
-        padding:8px 10px;
-    }
-    .brand{
-        font-size:16px;
-        margin-right:6px;
-    }
-    .brand span{
-        font-size:14px;
-    }
-    .menu-toggle{
-        font-size:18px;
-        padding:4px 10px;
-    }
-    .container{
-        padding:12px 10px;
-    }
-    .cards{
-        grid-template-columns:1fr;
-    }
-    .top h1{
-        font-size:20px;
-    }
-    .value{
-        font-size:20px;
-    }
-    table{
-        font-size:12px;
-    }
-    th,td{
-        padding:8px 5px;
-    }
-    .filter input,.filter select{
-        width:100%;
-        min-width:unset;
-    }
-    form.filter{
-        flex-direction:column;
-        align-items:stretch;
-    }
-    .mobile-controls .control-group{
-        flex-direction:column;
-        align-items:stretch;
-        gap:4px;
-    }
-    .mobile-controls .control-label{
-        min-width:unset;
-    }
-    .btn{
-        padding:8px 10px;
-        font-size:12px;
-    }
+@media(max-width:600px){
+    nav{min-height:58px;padding:8px 10px}
+    .brand{font-size:16px;padding:6px 4px}
+    .brand-mark{width:26px;height:26px;font-size:10px}
+    .nav-links{display:none}
+    .nav-actions{display:none}
+    .menu-toggle{width:38px;height:38px;font-size:19px}
+    .mobile-menu{left:8px;right:8px}
+    .container{padding:16px 12px}
 }
 
-/* Very Small Mobile */
-@media(max-width:360px){
-    nav{
-        padding:4px 6px;
-        gap:4px;
-    }
-    .brand{
-        font-size:13px;
-    }
-    .brand span{
-        font-size:12px;
-    }
-    .menu-toggle{
-        font-size:16px;
-        padding:3px 8px;
-    }
-    .container{
-        padding:8px 6px;
-    }
+@media(max-width:380px){
+    .brand{font-size:14px}
+    .brand-mark{width:24px;height:24px;font-size:9px}
+    .menu-toggle{width:36px;height:36px;font-size:18px}
+    .mobile-menu{padding:10px}
+    .mobile-menu .mobile-control-row{grid-template-columns:74px 1fr}
 }
 </style>
 </head>
 <body>
 
 <nav>
-<a class="brand" href="{% url 'tracker:dashboard' %}">💰 <span data-i18n="brand">Amar Hishab</span></a>
+    <a class="brand" href="{% url 'tracker:dashboard' %}">
+        <span class="brand-mark">AH</span>
+        <span data-i18n="brand">Amar Hishab</span>
+    </a>
 
-<!-- Menu Toggle Button - Visible on Mobile -->
-<button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
-    ☰
-</button>
+    <!-- Desktop navigation -->
+    <div class="nav-links">
+        <a href="{% url 'tracker:dashboard' %}" data-i18n="dashboard">Dashboard</a>
+        <a href="{% url 'tracker:transactions' %}" data-i18n="transactions">Transactions</a>
+        <a href="{% url 'tracker:yearly_overview' %}" data-i18n="yearly">Yearly</a>
+        <a href="{% url 'tracker:add_transaction' %}" data-i18n="add">+ Add</a>
+        <a href="{% url 'tracker:transfer_money' %}" data-i18n="transfer">Transfer</a>
+    </div>
 
-<!-- Nav Links -->
-<div class="nav-links" id="navLinks">
-    <a href="{% url 'tracker:dashboard' %}" data-i18n="dashboard">Dashboard</a>
-    <a href="{% url 'tracker:transactions' %}" data-i18n="transactions">Transactions</a>
-    <a href="{% url 'tracker:yearly_overview' %}" data-i18n="yearly">Yearly</a>
-    <a href="{% url 'tracker:add_transaction' %}" data-i18n="add">+ Add</a>
-    <a href="{% url 'tracker:transfer_money' %}" data-i18n="transfer">Transfer</a>
-    
-    <!-- Mobile Controls - Inside Menu -->
-    <div class="mobile-controls" id="mobileControls">
-        <!-- Language -->
-        <div class="control-group">
-            <span class="control-label">Language</span>
-            <div class="lang" id="mobileLang">
-                <button data-language="en">EN</button>
-                <button data-language="bn">BN</button>
+    <!-- Desktop actions -->
+    <div class="nav-actions">
+        <span class="user-chip">{{ request.user.email|default:request.user.username }}</span>
+
+        <div class="controls">
+            <div class="lang">
+                <button data-language="en" data-i18n="lang_en">EN</button>
+                <button data-language="bn" data-i18n="lang_bn">বাং</button>
             </div>
-        </div>
-        
-        <!-- Theme Dropdown -->
-        <div class="control-group">
-            <span class="control-label">Theme</span>
-            <div class="theme-dropdown">
-                <button class="theme-selector" id="themeSelector">
-                    <span id="currentThemeLabel">Dark</span>
-                    <span class="arrow" id="themeArrow">▼</span>
+
+            <div class="theme-dropdown desktop-theme">
+                <button class="theme-selector" id="desktopThemeSelector" type="button">
+                    <span id="desktopThemeLabel">Dark</span>
+                    <span class="arrow" id="desktopThemeArrow">▼</span>
                 </button>
-                <div class="theme-options" id="themeOptions">
-                    <button data-theme="dark">
-                        Dark
-                        <span class="check">✓</span>
-                    </button>
-                    <button data-theme="light">
-                        Light
-                        <span class="check">✓</span>
-                    </button>
-                    <button data-theme="system">
-                        System
-                        <span class="check">✓</span>
-                    </button>
+                <div class="theme-options" id="desktopThemeOptions">
+                    <button data-theme="dark"><span data-i18n="theme_dark">ডার্ক</span><span class="check">✓</span></button>
+                    <button data-theme="light"><span data-i18n="theme_light" style="color: white;">লাইট</span><span class="check">✓</span></button>
+                    <button data-theme="system"><span data-i18n="theme_system">সিস্টেম</span><span class="check">✓</span></button>
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
-<div class="nav-right">
-    <span class="user">{{ request.user.email|default:request.user.username }}</span>
-    <form method="post" action="/accounts/logout/" style="margin:0">
-        {% csrf_token %}
-        <button class="btn" type="submit" data-i18n="logout">Logout</button>
-    </form>
-
-    <!-- Desktop Controls -->
-    <div class="controls">
-        <div class="lang">
-            <button data-language="en">EN</button>
-            <button data-language="bn">BN</button>
-        </div>
-        <div class="theme-toggle">
-            <button data-theme="dark" title="Dark">DARK</button>
-            <button data-theme="light" title="Light">LIGHT</button>
-            <button data-theme="system" title="System">SYSTEM</button>
-        </div>
+        <form method="post" action="/accounts/logout/" style="margin:0">
+            {% csrf_token %}
+            <button class="nav-logout" type="submit" data-i18n="logout">Logout</button>
+        </form>
     </div>
-</div>
+
+    <!-- Mobile menu button -->
+    <button class="menu-toggle" id="menuToggle" type="button" aria-label="Toggle menu" aria-expanded="false">☰</button>
+
+    <!-- Everything stays inside the mobile menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-links">
+            <a href="{% url 'tracker:dashboard' %}" data-i18n="dashboard">Dashboard</a>
+            <a href="{% url 'tracker:transactions' %}" data-i18n="transactions">Transactions</a>
+            <a href="{% url 'tracker:yearly_overview' %}" data-i18n="yearly">Yearly</a>
+            <a href="{% url 'tracker:add_transaction' %}" data-i18n="add">+ Add</a>
+            <a href="{% url 'tracker:transfer_money' %}" data-i18n="transfer">Transfer</a>
+        </div>
+
+        <div class="mobile-divider"></div>
+
+        <div class="mobile-user">{{ request.user.email|default:request.user.username }}</div>
+
+        <div class="mobile-control-row">
+            <span class="mobile-label" data-i18n="language">Language</span>
+            <div class="mobile-lang">
+                <button data-language="en" data-i18n="lang_en">EN</button>
+                <button data-language="bn" data-i18n="lang_bn">বাংলা</button>
+            </div>
+        </div>
+
+        <div class="mobile-control-row">
+            <span class="mobile-label" data-i18n="theme">Theme</span>
+            <div class="theme-dropdown mobile-theme">
+                <button class="theme-selector" id="mobileThemeSelector" type="button">
+                    <span id="mobileThemeLabel">ডার্ক</span>
+                    <span class="arrow" id="mobileThemeArrow">▼</span>
+                </button>
+                <div class="theme-options" id="mobileThemeOptions">
+                    <button data-theme="dark"><span data-i18n="theme_dark">ডার্ক</span><span class="check">✓</span></button>
+                    <button data-theme="light"><span data-i18n="theme_light" style="color: white;">লাইট</span><span class="check">✓</span></button>
+                    <button data-theme="system"><span data-i18n="theme_system">সিস্টেম</span><span class="check">✓</span></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="mobile-divider"></div>
+
+        <form method="post" action="/accounts/logout/" style="margin:0">
+            {% csrf_token %}
+            <button class="nav-logout mobile-logout" type="submit" data-i18n="logout">Logout</button>
+        </form>
+    </div>
 </nav>
 
 <div class="container">
@@ -538,14 +511,13 @@ textarea{min-height:90px;resize:vertical}
 // ============================================================
 // I18N
 // ============================================================
-const I18N={en:{brand:'Amar Hishab',dashboard:'Dashboard',transactions:'Transactions',yearly:'Yearly',add:'+ Add',transfer:'Transfer',logout:'Logout',greeting:'Good to see you',income:'Income',expense:'Expense',total_balance:'Total Balance',monthly_income:'Monthly Income',monthly_expense:'Monthly Expense',saved:'Saved This Month',accounts:'Your Accounts',recent:'Recent Transactions',category:'Category',method:'Account / Method',amount:'Amount',date:'Date',description:'Description',no_data:'No transactions yet',view_all:'View all',month_summary:'Monthly Summary',expense_category:'Expense by Category',expense_method:'Expense by Payment Method',income_source:'Income Sources',received_via:'Received via',yearly_summary:'Yearly Summary',show:'Show',transfer_title:'Move Money Between Accounts',from:'From',to:'To',save_transfer:'Save Transfer',transfer_note:'Transfers are not income or expense. The exact amount is moved between accounts.',add_title:'Add Transaction',transaction_type:'Transaction Type',income_source_label:'Income Source',expense_category_label:'Expense Category',received_method:'Received via',payment_method:'Payment Method',save:'Save Transaction',description_optional:'Description (optional)',no_hidden_fee:'The amount you enter is recorded exactly. No automatic fee or 0.03 is deducted.',other_source:'Where did it come from?',search:'Search',all:'All',export:'Export CSV',delete:'Delete'},bn:{brand:'আমার হিসাব',dashboard:'ড্যাশবোর্ড',transactions:'লেনদেন',yearly:'বার্ষিক',add:'+ যোগ করুন',transfer:'টাকা ট্রান্সফার',logout:'লগআউট',greeting:'আবারও স্বাগতম',income:'আয়',expense:'খরচ',total_balance:'মোট ব্যালেন্স',monthly_income:'মাসের আয়',monthly_expense:'মাসের খরচ',saved:'এই মাসে সঞ্চয়',accounts:'আপনার অ্যাকাউন্ট',recent:'সাম্প্রতিক লেনদেন',category:'খাত',method:'অ্যাকাউন্ট / মাধ্যম',amount:'পরিমাণ',date:'তারিখ',description:'বিবরণ',no_data:'এখনও কোনো লেনদেন নেই',view_all:'সব দেখুন',month_summary:'মাসিক সারসংক্ষেপ',expense_category:'খাত অনুযায়ী খরচ',expense_method:'পেমেন্ট মাধ্যম অনুযায়ী খরচ',income_source:'আয়ের উৎস',received_via:'যেভাবে পেয়েছেন',yearly_summary:'বার্ষিক সারসংক্ষেপ',show:'দেখুন',transfer_title:'এক অ্যাকাউন্ট থেকে অন্যটিতে টাকা দিন',from:'যে অ্যাকাউন্ট থেকে',to:'যে অ্যাকাউন্টে',save_transfer:'ট্রান্সফার সংরক্ষণ করুন',transfer_note:'ট্রান্সফার আয় বা খরচ হিসেবে ধরা হবে না। সঠিক পরিমাণ এক অ্যাকাউন্ট থেকে অন্যটিতে যাবে।',add_title:'লেনদেন যোগ করুন',transaction_type:'লেনদেনের ধরন',income_source_label:'আয়ের উৎস',expense_category_label:'খরচের খাত',received_method:'যেভাবে পেয়েছেন',payment_method:'পেমেন্ট মাধ্যম',save:'লেনদেন সংরক্ষণ করুন',description_optional:'বিবরণ (ঐচ্ছিক)',no_hidden_fee:'আপনি যত টাকা লিখবেন ঠিক তত টাকাই সংরক্ষণ হবে। কোনো অটোমেটিক ফি বা ০.০৩ টাকা কাটা হবে না।',other_source:'কোথা থেকে এসেছে?',search:'খুঁজুন',all:'সব',export:'CSV এক্সপোর্ট',delete:'ডিলিট'}};
+const I18N={en:{brand:'Amar Hishab',language:'Language',theme:'Theme',lang_en:'EN',lang_bn:'BN',theme_dark:' Dark',theme_light:'Light',theme_system:'System',dashboard:'Dashboard',transactions:'Transactions',yearly:'Yearly',add:'+ Add',transfer:'Transfer',logout:'Logout',greeting:'Good to see you',income:'Income',expense:'Expense',total_balance:'Total Balance',monthly_income:'Monthly Income',monthly_expense:'Monthly Expense',saved:'Saved This Month',accounts:'Your Accounts',recent:'Recent Transactions',category:'Category',method:'Account / Method',amount:'Amount',date:'Date',description:'Description',no_data:'No transactions yet',view_all:'View all',month_summary:'Monthly Summary',expense_category:'Expense by Category',expense_method:'Expense by Payment Method',income_source:'Income Sources',received_via:'Received via',yearly_summary:'Yearly Summary',show:'Show',transfer_title:'Move Money Between Accounts',from:'From',to:'To',save_transfer:'Save Transfer',transfer_note:'Transfers are not income or expense. The exact amount is moved between accounts.',add_title:'Add Transaction',transaction_type:'Transaction Type',income_source_label:'Income Source',expense_category_label:'Expense Category',received_method:'Received via',payment_method:'Payment Method',save:'Save Transaction',description_optional:'Description (optional)',no_hidden_fee:'The amount you enter is recorded exactly. No automatic fee or 0.03 is deducted.',other_source:'Where did it come from?',search:'Search',all:'All',export:'Export CSV',delete:'Delete'},bn:{brand:'আমার হিসাব',language:'ভাষা',theme:'থিম',lang_en:'EN',lang_bn:'বাংলা',theme_dark:'ডার্ক',theme_light:'লাইট',theme_system:'সিস্টেম',dashboard:'ড্যাশবোর্ড',transactions:'লেনদেন',yearly:'বার্ষিক',add:'+ যোগ করুন',transfer:'টাকা ট্রান্সফার',logout:'লগআউট',greeting:'আবারও স্বাগতম',income:'আয়',expense:'খরচ',total_balance:'মোট ব্যালেন্স',monthly_income:'মাসের আয়',monthly_expense:'মাসের খরচ',saved:'এই মাসে সঞ্চয়',accounts:'আপনার অ্যাকাউন্ট',recent:'সাম্প্রতিক লেনদেন',category:'খাত',method:'অ্যাকাউন্ট / মাধ্যম',amount:'পরিমাণ',date:'তারিখ',description:'বিবরণ',no_data:'এখনও কোনো লেনদেন নেই',view_all:'সব দেখুন',month_summary:'মাসিক সারসংক্ষেপ',expense_category:'খাত অনুযায়ী খরচ',expense_method:'পেমেন্ট মাধ্যম অনুযায়ী খরচ',income_source:'আয়ের উৎস',received_via:'যেভাবে পেয়েছেন',yearly_summary:'বার্ষিক সারসংক্ষেপ',show:'দেখুন',transfer_title:'এক অ্যাকাউন্ট থেকে অন্যটিতে টাকা দিন',from:'যে অ্যাকাউন্ট থেকে',to:'যে অ্যাকাউন্টে',save_transfer:'ট্রান্সফার সংরক্ষণ করুন',transfer_note:'ট্রান্সফার আয় বা খরচ হিসেবে ধরা হবে না। সঠিক পরিমাণ এক অ্যাকাউন্ট থেকে অন্যটিতে যাবে।',add_title:'লেনদেন যোগ করুন',transaction_type:'লেনদেনের ধরন',income_source_label:'আয়ের উৎস',expense_category_label:'খরচের খাত',received_method:'যেভাবে পেয়েছেন',payment_method:'পেমেন্ট মাধ্যম',save:'লেনদেন সংরক্ষণ করুন',description_optional:'বিবরণ (ঐচ্ছিক)',no_hidden_fee:'আপনি যত টাকা লিখবেন ঠিক তত টাকাই সংরক্ষণ হবে। কোনো অটোমেটিক ফি বা ০.০৩ টাকা কাটা হবে না।',other_source:'কোথা থেকে এসেছে?',search:'খুঁজুন',all:'সব',export:'CSV এক্সপোর্ট',delete:'ডিলিট'}};
 const MONTHS={en:['','January','February','March','April','May','June','July','August','September','October','November','December'],bn:['','জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর']};
 
 // Theme labels
 const THEME_LABELS = {
-    dark: '🌙 Dark',
-    light: '☀️ Light',
-    system: '💻 System'
+    en: { dark: 'Dark', light: 'Light', system: 'System' },
+    bn: { dark: 'ডার্ক', light: 'লাইট', system: 'সিস্টেম' }
 };
 
 // ============================================================
@@ -575,6 +547,13 @@ function applyLanguage(lang){
     document.querySelectorAll('.lang button').forEach(b=>{
         b.classList.toggle('active',b.dataset.language===lang)
     });
+
+    const currentTheme=localStorage.getItem('financeTrackerTheme')||'system';
+    const themeLabel=THEME_LABELS[lang][currentTheme];
+    const desktopThemeLabel=document.getElementById('desktopThemeLabel');
+    const mobileThemeLabel=document.getElementById('mobileThemeLabel');
+    if(desktopThemeLabel) desktopThemeLabel.textContent=themeLabel;
+    if(mobileThemeLabel) mobileThemeLabel.textContent=themeLabel;
     
     if(window.refreshChartsLanguage)window.refreshChartsLanguage(lang);
     window.dispatchEvent(new CustomEvent('languageChanged',{detail:{lang}}));
@@ -583,150 +562,149 @@ function applyLanguage(lang){
 // ============================================================
 // THEME
 // ============================================================
+function getCurrentLanguage(){
+    return localStorage.getItem('financeTrackerLanguage')||'en';
+}
+
 function setTheme(theme){
     const valid=['dark','light','system'];
     if(!valid.includes(theme)) theme='system';
+
     localStorage.setItem('financeTrackerTheme',theme);
     document.documentElement.setAttribute('data-theme',theme);
-    
-    // Update desktop theme buttons
-    document.querySelectorAll('.theme-toggle button').forEach(b=>{
-        b.classList.toggle('active',b.dataset.theme===theme)
-    });
-    
-    // Update dropdown label
-    const labelEl = document.getElementById('currentThemeLabel');
-    if(labelEl){
-        const label = THEME_LABELS[theme] || theme;
-        labelEl.textContent = label;
-    }
-    
-    // Update dropdown options
+
+    const lang=getCurrentLanguage();
+    const label=THEME_LABELS[lang][theme];
+
+    const desktopLabel=document.getElementById('desktopThemeLabel');
+    const mobileLabel=document.getElementById('mobileThemeLabel');
+    if(desktopLabel) desktopLabel.textContent=label;
+    if(mobileLabel) mobileLabel.textContent=label;
+
     document.querySelectorAll('.theme-options button').forEach(b=>{
-        b.classList.toggle('active',b.dataset.theme===theme)
+        b.classList.toggle('active',b.dataset.theme===theme);
     });
-    
-    const isDark=theme==='dark'||(theme==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);
-    document.querySelector('meta[name="theme-color"]').content=isDark?'#0b0e13':'#f0f2f5';
+
+    const isDark=theme==='dark'||(
+        theme==='system' && window.matchMedia('(prefers-color-scheme: dark)').matches
+    );
+    const meta=document.querySelector('meta[name="theme-color"]');
+    if(meta) meta.content=isDark?'#0b0e13':'#f0f2f5';
+
     window.dispatchEvent(new CustomEvent('themeChanged',{detail:{theme,isDark}}));
 }
 
 // ============================================================
-// MOBILE MENU
+// MOBILE / THEME MENUS
 // ============================================================
-function toggleMenu(){
-    const links=document.getElementById('navLinks');
-    const controls=document.getElementById('mobileControls');
-    const toggle=document.getElementById('menuToggle');
-    const isOpen=links.classList.toggle('open');
-    
-    if(isOpen){
-        controls.classList.add('open');
-    }else{
-        controls.classList.remove('open');
-        closeThemeDropdown();
+function closeThemeDropdowns(){
+    document.querySelectorAll('.theme-options').forEach(el=>el.classList.remove('open'));
+    document.querySelectorAll('.theme-selector .arrow').forEach(el=>el.classList.remove('open'));
+}
+
+function toggleThemeDropdown(selectorId,optionsId,arrowId){
+    const options=document.getElementById(optionsId);
+    const arrow=document.getElementById(arrowId);
+    if(!options) return;
+    const willOpen=!options.classList.contains('open');
+    closeThemeDropdowns();
+    if(willOpen){
+        options.classList.add('open');
+        if(arrow) arrow.classList.add('open');
     }
-    
+}
+
+function closeMobileMenu(){
+    const menu=document.getElementById('mobileMenu');
+    const toggle=document.getElementById('menuToggle');
+    if(menu) menu.classList.remove('open');
+    if(toggle){
+        toggle.textContent='☰';
+        toggle.classList.remove('open');
+        toggle.setAttribute('aria-expanded','false');
+    }
+    closeThemeDropdowns();
+}
+
+function toggleMenu(){
+    const menu=document.getElementById('mobileMenu');
+    const toggle=document.getElementById('menuToggle');
+    if(!menu || !toggle) return;
+
+    const isOpen=menu.classList.toggle('open');
     toggle.textContent=isOpen?'✕':'☰';
     toggle.classList.toggle('open',isOpen);
-    toggle.setAttribute('aria-expanded',isOpen);
-}
-
-// ============================================================
-// THEME DROPDOWN
-// ============================================================
-function toggleThemeDropdown(){
-    const options=document.getElementById('themeOptions');
-    const arrow=document.getElementById('themeArrow');
-    const isOpen=options.classList.toggle('open');
-    arrow.classList.toggle('open',isOpen);
-}
-
-function closeThemeDropdown(){
-    const options=document.getElementById('themeOptions');
-    const arrow=document.getElementById('themeArrow');
-    options.classList.remove('open');
-    arrow.classList.remove('open');
+    toggle.setAttribute('aria-expanded',String(isOpen));
+    if(!isOpen) closeThemeDropdowns();
 }
 
 // ============================================================
 // INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded',function(){
-    // Language
     const savedLang=localStorage.getItem('financeTrackerLanguage')||'en';
     applyLanguage(savedLang);
-    
-    document.querySelectorAll('.lang button').forEach(b=>{
-        b.onclick=()=>applyLanguage(b.dataset.language)
+
+    document.querySelectorAll('.lang button,.mobile-lang button').forEach(b=>{
+        b.onclick=()=>applyLanguage(b.dataset.language);
     });
 
-    // Theme
     const savedTheme=localStorage.getItem('financeTrackerTheme')||'system';
     setTheme(savedTheme);
-    
-    document.querySelectorAll('.theme-toggle button').forEach(b=>{
-        b.onclick=()=>setTheme(b.dataset.theme)
-    });
-    
-    // Theme dropdown
-    document.getElementById('themeSelector').addEventListener('click', function(e){
-        e.stopPropagation();
-        toggleThemeDropdown();
-    });
-    
+
+    const desktopSelector=document.getElementById('desktopThemeSelector');
+    const mobileSelector=document.getElementById('mobileThemeSelector');
+
+    if(desktopSelector){
+        desktopSelector.addEventListener('click',function(e){
+            e.stopPropagation();
+            toggleThemeDropdown('desktopThemeSelector','desktopThemeOptions','desktopThemeArrow');
+        });
+    }
+    if(mobileSelector){
+        mobileSelector.addEventListener('click',function(e){
+            e.stopPropagation();
+            toggleThemeDropdown('mobileThemeSelector','mobileThemeOptions','mobileThemeArrow');
+        });
+    }
+
     document.querySelectorAll('.theme-options button').forEach(b=>{
-        b.onclick=function(e){
+        b.addEventListener('click',function(e){
             e.stopPropagation();
             setTheme(this.dataset.theme);
-            closeThemeDropdown();
-        }
-    });
-    
-    // Close dropdown on outside click
-    document.addEventListener('click', function(e){
-        const dropdown = document.querySelector('.theme-dropdown');
-        if(dropdown && !dropdown.contains(e.target)){
-            closeThemeDropdown();
-        }
+            closeThemeDropdowns();
+        });
     });
 
-    // System theme change detection
+    document.addEventListener('click',function(e){
+        if(!e.target.closest('.theme-dropdown')) closeThemeDropdowns();
+        if(!e.target.closest('#mobileMenu') && !e.target.closest('#menuToggle')) closeMobileMenu();
+    });
+
+    document.getElementById('menuToggle')?.addEventListener('click',function(e){
+        e.stopPropagation();
+        toggleMenu();
+    });
+
+    document.querySelectorAll('.mobile-links a').forEach(a=>{
+        a.addEventListener('click',closeMobileMenu);
+    });
+
+    // Highlight the current page in both desktop and mobile navigation.
+    const currentPath=window.location.pathname.replace(/\/$/,'')||'/';
+    document.querySelectorAll('.nav-links a,.mobile-links a').forEach(a=>{
+        try{
+            const linkPath=new URL(a.href,window.location.origin).pathname.replace(/\/$/,'')||'/';
+            a.classList.toggle('active',linkPath===currentPath);
+        }catch(err){}
+    });
+
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){
         if(localStorage.getItem('financeTrackerTheme')==='system') setTheme('system');
     });
 
-    // Mobile menu
-    document.getElementById('menuToggle').addEventListener('click',toggleMenu);
-    
     window.addEventListener('resize',function(){
-        const links=document.getElementById('navLinks');
-        const controls=document.getElementById('mobileControls');
-        const toggle=document.getElementById('menuToggle');
-        if(window.innerWidth>768&&links.classList.contains('open')){
-            links.classList.remove('open');
-            controls.classList.remove('open');
-            toggle.textContent='☰';
-            toggle.classList.remove('open');
-            toggle.setAttribute('aria-expanded','false');
-            closeThemeDropdown();
-        }
-    });
-    
-    document.querySelectorAll('.nav-links a:not(.mobile-controls *)').forEach(a=>{
-        a.addEventListener('click',function(){
-            const links=document.getElementById('navLinks');
-            const controls=document.getElementById('mobileControls');
-            const toggle=document.getElementById('menuToggle');
-            if(window.innerWidth<=768&&links.classList.contains('open')){
-                links.classList.remove('open');
-                controls.classList.remove('open');
-                toggle.textContent='☰';
-                toggle.classList.remove('open');
-                toggle.setAttribute('aria-expanded','false');
-                closeThemeDropdown();
-            }
-        });
+        if(window.innerWidth>1050) closeMobileMenu();
     });
 });
 

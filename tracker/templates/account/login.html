@@ -1,231 +1,242 @@
-{% extends "tracker/base.html" %}
-{% block title %}Sign In - Amar Hishab{% endblock %}
-
+{% extends 'tracker/base.html' %}
+{% load socialaccount %}
+{% block title %}
+  Sign In - Amar Hishab
+{% endblock %}
 {% block content %}
+  <style>
+    .auth-wrap {
+      min-height: calc(100vh - 110px);
+      display: grid;
+      place-items: center;
+      padding: 34px 0;
+    }
+    .auth-shell {
+      width: min(940px, 100%);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: #171a21;
+      border: 1px solid #262a33;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+    }
+    .auth-brand {
+      padding: 48px;
+      background: linear-gradient(145deg, #1d2140, #171a21 62%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .auth-logo {
+      font-size: 42px;
+      margin-bottom: 18px;
+    }
+    .auth-brand h2 {
+      font-size: 32px;
+      margin: 0 0 12px;
+    }
+    .auth-brand p {
+      color: #a7adba;
+      line-height: 1.65;
+      margin: 0;
+      max-width: 350px;
+    }
+    .auth-points {
+      margin-top: 28px;
+      display: grid;
+      gap: 12px;
+      color: #cfd3da;
+      font-size: 14px;
+    }
+    .auth-point {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .auth-card {
+      padding: 42px;
+    }
+    .auth-card h1 {
+      font-size: 27px;
+      margin: 0 0 8px;
+    }
+    .auth-sub {
+      color: #8f95a1;
+      margin: 0 0 26px;
+    }
+    .google-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      background: #fff;
+      color: #202124;
+      border: 0;
+      padding: 12px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .google-icon {
+      font-weight: 800;
+      font-size: 18px;
+    }
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #707683;
+      font-size: 12px;
+      margin: 22px 0;
+    }
+    .divider:before,
+    .divider:after {
+      content: '';
+      height: 1px;
+      background: #2b303a;
+      flex: 1;
+    }
+    .field {
+      margin-bottom: 16px;
+    }
+    .field label {
+      display: block;
+      font-size: 13px;
+      color: #c9cdd4;
+      margin-bottom: 7px;
+    }
+    .field input {
+      width: 100%;
+      padding: 11px 12px;
+      background: #11141a;
+      border: 1px solid #2b303a;
+      color: #f2f3f5;
+      border-radius: 9px;
+      outline: none;
+    }
+    .field input:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+    }
+    .auth-submit {
+      width: 100%;
+      padding: 12px;
+      border-radius: 9px;
+      margin-top: 3px;
+    }
+    .auth-links {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 18px;
+      font-size: 13px;
+    }
+    .auth-links a {
+      color: #aab0ff;
+      text-decoration: none;
+    }
+    .errorlist {
+      color: #fca5a5;
+      font-size: 13px;
+      margin: 6px 0 12px;
+      padding-left: 18px;
+    }
+    .nonfield {
+      margin-bottom: 12px;
+    }
+    @media (max-width: 760px) {
+      .auth-shell {
+        grid-template-columns: 1fr;
+      }
+      .auth-brand {
+        display: none;
+      }
+      .auth-card {
+        padding: 28px 22px;
+      }
+      .auth-wrap {
+        padding: 18px 0;
+      }
+    }
+  </style>
 
-<style>
-.auth-wrap{min-height:calc(100vh - 110px);display:grid;place-items:center;padding:34px 0}
-.auth-shell{width:min(940px,100%);display:grid;grid-template-columns:1fr 1fr;background:#171a21;border:1px solid #262a33;border-radius:24px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.28)}
-.auth-brand{padding:48px;background:linear-gradient(145deg,#1d2140,#171a21 62%);display:flex;flex-direction:column;justify-content:center}
-.auth-logo{font-size:42px;margin-bottom:18px}
-.auth-brand h2{font-size:32px;margin:0 0 12px}
-.auth-brand p{color:#a7adba;line-height:1.65;margin:0;max-width:350px}
-.auth-points{margin-top:28px;display:grid;gap:12px;color:#cfd3da;font-size:14px}
-.auth-point{display:flex;gap:10px;align-items:center}
-.auth-card{padding:42px}
-.auth-card h1{font-size:27px;margin:0 0 8px}
-.auth-sub{color:#8f95a1;margin:0 0 26px}
+  <div class="auth-wrap">
+    <div class="auth-shell">
+      <section class="auth-brand">
+        <div class="auth-logo">💰</div>
+        <h2>Amar Hishab</h2>
+        <p data-i18n="auth_tagline">Your money, organized. Track income, expenses and every balance in one private place.</p>
+        <div class="auth-points">
+          <div class="auth-point">
+            ✓ <span data-i18n="auth_point1">Personal finance dashboard</span>
+          </div>
+          <div class="auth-point">
+            ✓ <span data-i18n="auth_point2">Cash, bKash, Nagad & Bank balances</span>
+          </div>
+          <div class="auth-point">
+            ✓ <span data-i18n="auth_point3">Monthly & yearly insights</span>
+          </div>
+        </div>
+      </section>
+      <section class="auth-card">
+        <h1 data-i18n="signin_title">Welcome back</h1>
+        <p class="auth-sub" data-i18n="signin_sub">Sign in to continue to your personal finance dashboard.</p>
 
-.google-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:#fff;color:#202124;border:0;padding:12px;border-radius:10px;font-weight:700;cursor:pointer;text-decoration:none}
-.google-icon{font-weight:800;font-size:18px}
+        <form method="post" action="{% provider_login_url 'google' %}">
+          {% csrf_token %}
 
-.divider{display:flex;align-items:center;gap:12px;color:#707683;font-size:12px;margin:22px 0}
-.divider:before,.divider:after{content:"";height:1px;background:#2b303a;flex:1}
+          <button class="google-btn" type="submit">
+            <span class="google-icon">G</span>
+            <span>Continue with Google</span>
+          </button>
+        </form>
 
-.field{margin-bottom:16px}
-.field label{display:block;font-size:13px;color:#c9cdd4;margin-bottom:7px}
-.field input{width:100%;padding:11px 12px;background:#11141a;border:1px solid #2b303a;color:#f2f3f5;border-radius:9px;outline:none;box-sizing:border-box}
-.field input:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.12)}
+        <div class="divider">
+          <span data-i18n="or">OR</span>
+        </div>
 
-.auth-submit{width:100%;padding:12px;border-radius:9px;margin-top:3px}
-.auth-links{margin-top:18px;text-align:center;font-size:13px}
-.auth-links a{color:#aab0ff;text-decoration:none}
-.auth-links a:hover{text-decoration:underline}
+        <form method="post" action="{% url 'account_login' %}">
+          {% csrf_token %}
+          {{ form.non_field_errors }}
+          <div class="field">
+            <label for="id_login" data-i18n="email">Email</label>
+            {{ form.login }}
+          </div>
+          <div class="field">
+            <label for="id_password" data-i18n="password">Password</label>
+            {{ form.password }}
+          </div>
+          {% if redirect_field_value %}
+            <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+          {% endif %}
+          <button class="auth-submit" type="submit" data-i18n="signin_button">Sign In</button>
+        </form>
 
-.errorlist{color:#fca5a5;font-size:13px;margin:6px 0 12px;padding-left:18px}
-
-.forgot-link{
-  display:block;
-  text-align:right;
-  margin-top:-7px;
-  margin-bottom:18px;
-  font-size:12px;
-  color:#aab0ff;
-  text-decoration:none;
-}
-.forgot-link:hover{text-decoration:underline}
-
-@media(max-width:760px){
-  .auth-shell{grid-template-columns:1fr}
-  .auth-brand{display:none}
-  .auth-card{padding:28px 22px}
-  .auth-wrap{padding:18px 0}
-}
-</style>
-
-<div class="auth-wrap">
-  <div class="auth-shell">
-
-```
-<section class="auth-brand">
-  <div class="auth-logo">💰</div>
-
-  <h2>Amar Hishab</h2>
-
-  <p data-i18n="auth_tagline">
-    Welcome back to your private financial space. Keep every taka accounted for.
-  </p>
-
-  <div class="auth-points">
-    <div class="auth-point">
-      ✓ <span data-i18n="login_point1">Track your income and expenses</span>
+        <div class="auth-links">
+          <a href="{% url 'account_reset_password' %}" data-i18n="forgot">Forgot password?</a>
+          <a href="{% url 'account_signup' %}" data-i18n="create_account">Create account</a>
+        </div>
+      </section>
     </div>
-
-    <div class="auth-point">
-      ✓ <span data-i18n="login_point2">View your financial summaries</span>
-    </div>
-
-    <div class="auth-point">
-      ✓ <span data-i18n="login_point3">Your personal data stays with your account</span>
-    </div>
   </div>
-</section>
-
-<section class="auth-card">
-
-  <h1 data-i18n="login_title">Welcome back</h1>
-
-  <p class="auth-sub" data-i18n="login_sub">
-    Sign in to continue managing your finances.
-  </p>
-
-  <a class="google-btn" href="{% url 'google_login' %}">
-    <span class="google-icon">G</span>
-    <span data-i18n="google_login">Continue with Google</span>
-  </a>
-
-  <div class="divider">
-    <span data-i18n="or">OR</span>
-  </div>
-
-  <form method="post" action="{% url 'account_login' %}">
-    {% csrf_token %}
-
-    {{ form.non_field_errors }}
-
-    {% for field in form %}
-      <div class="field">
-        <label for="{{ field.id_for_label }}">
-          {{ field.label }}
-        </label>
-
-        {{ field }}
-
-        {{ field.errors }}
-      </div>
-    {% endfor %}
-
-    {% if redirect_field_value %}
-      <input
-        type="hidden"
-        name="{{ redirect_field_name }}"
-        value="{{ redirect_field_value }}"
-      >
-    {% endif %}
-
-    <a
-      href="{% url 'account_reset_password' %}"
-      class="forgot-link"
-      data-i18n="forgot_password"
-    >
-      Forgot password?
-    </a>
-
-    <button
-      class="auth-submit"
-      type="submit"
-      data-i18n="login_button"
-    >
-      Sign In
-    </button>
-  </form>
-
-  <div class="auth-links">
-    <span data-i18n="no_account">
-      Don't have an account?
-    </span>
-
-    <a
-      href="{% url 'account_signup' %}"
-      data-i18n="signup_link"
-    >
-      Sign up
-    </a>
-  </div>
-
-</section>
-```
-
-  </div>
-</div>
 {% endblock %}
 
 {% block extra_js %}
-
-<script>
-const authExtra = {
-  en: {
-    auth_tagline: "Welcome back to your private financial space. Keep every taka accounted for.",
-
-    login_point1: "Track your income and expenses",
-    login_point2: "View your financial summaries",
-    login_point3: "Your personal data stays with your account",
-
-    login_title: "Welcome back",
-    login_sub: "Sign in to continue managing your finances.",
-
-    google_login: "Continue with Google",
-
-    or: "OR",
-
-    forgot_password: "Forgot password?",
-
-    login_button: "Sign In",
-
-    no_account: "Don't have an account?",
-    signup_link: "Sign up"
-  },
-
-  bn: {
-    auth_tagline: "আপনার ব্যক্তিগত আর্থিক জায়গায় আবারও স্বাগতম। প্রতিটি টাকার হিসাব রাখুন।",
-
-    login_point1: "আপনার আয় ও খরচের হিসাব রাখুন",
-    login_point2: "আপনার আর্থিক সারসংক্ষেপ দেখুন",
-    login_point3: "আপনার ব্যক্তিগত তথ্য আপনার অ্যাকাউন্টের সাথেই থাকবে",
-
-    login_title: "আবারও স্বাগতম",
-    login_sub: "আপনার হিসাব পরিচালনা চালিয়ে যেতে সাইন ইন করুন।",
-
-    google_login: "Google দিয়ে চালিয়ে যান",
-
-    or: "অথবা",
-
-    forgot_password: "পাসওয়ার্ড ভুলে গেছেন?",
-
-    login_button: "সাইন ইন",
-
-    no_account: "অ্যাকাউন্ট নেই?",
-    signup_link: "সাইন আপ করুন"
-  }
-};
-
-const baseApply = applyLanguage;
-
-applyLanguage = function(lang) {
-  baseApply(lang);
-
-  document.querySelectorAll("[data-i18n]").forEach(el => {
-    if (authExtra[lang] && authExtra[lang][el.dataset.i18n]) {
-      el.textContent = authExtra[lang][el.dataset.i18n];
+  <script>
+    const authExtra = {
+      en: { auth_tagline: 'Your money, organized. Track income, expenses and every balance in one private place.', auth_point1: 'Personal finance dashboard', auth_point2: 'Cash, bKash, Nagad & Bank balances', auth_point3: 'Monthly & yearly insights', signin_title: 'Welcome back', signin_sub: 'Sign in to continue to your personal finance dashboard.', google_signin: 'Continue with Google', or: 'OR', email: 'Email', password: 'Password', signin_button: 'Sign In', forgot: 'Forgot password?', create_account: 'Create account' },
+      bn: { auth_tagline: 'আপনার অর্থ, সুন্দরভাবে গুছানো। আয়, খরচ ও সব ব্যালেন্স এক জায়গায় দেখুন।', auth_point1: 'ব্যক্তিগত ফাইন্যান্স ড্যাশবোর্ড', auth_point2: 'ক্যাশ, বিকাশ, নগদ ও ব্যাংক ব্যালেন্স', auth_point3: 'মাসিক ও বার্ষিক হিসাব', signin_title: 'আবার স্বাগতম', signin_sub: 'আপনার ব্যক্তিগত হিসাব দেখতে সাইন ইন করুন।', google_signin: 'Google দিয়ে চালিয়ে যান', or: 'অথবা', email: 'ইমেইল', password: 'পাসওয়ার্ড', signin_button: 'সাইন ইন', forgot: 'পাসওয়ার্ড ভুলে গেছেন?', create_account: 'অ্যাকাউন্ট তৈরি করুন' }
     }
-  });
-};
-
-document.addEventListener("DOMContentLoaded", () => {
-  applyLanguage(
-    localStorage.getItem("financeTrackerLanguage") || "en"
-  );
-});
-</script>
-
+    const baseApply = applyLanguage
+    applyLanguage = function (lang) {
+      baseApply(lang)
+      document.querySelectorAll('[data-i18n]').forEach((el) => {
+        if (authExtra[lang][el.dataset.i18n]) el.textContent = authExtra[lang][el.dataset.i18n]
+      })
+    }
+    document.addEventListener('DOMContentLoaded', () => applyLanguage(localStorage.getItem('financeTrackerLanguage') || 'en'))
+  </script>
 {% endblock %}

@@ -1,0 +1,5 @@
+Your Amar Hishab email verification code is: {{ code }}
+
+Enter this 5-digit code in the open Amar Hishab window. It expires in 10 minutes.
+
+If you did not request this, you can safely ignore this email.

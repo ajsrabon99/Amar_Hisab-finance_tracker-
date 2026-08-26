@@ -21,11 +21,13 @@ SECRET_KEY = os.getenv(
 
 DEBUG = os.getenv("DEBUG", "True").lower() == "true"
 
+
 ALLOWED_HOSTS = [
     host.strip()
     for host in os.getenv("ALLOWED_HOSTS", "").split(",")
     if host.strip()
 ]
+
 
 # Local development
 if DEBUG and not ALLOWED_HOSTS:
@@ -89,7 +91,6 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
 
-        # Custom Amar Hishab templates
         "DIRS": [
             BASE_DIR / "tracker" / "templates",
         ],
@@ -184,21 +185,27 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
 # ============================================================
-# SITE
+# DJANGO SITES
 # ============================================================
 
 SITE_ID = 1
 
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
 
-SITE_DOMAIN = os.getenv("SITE_DOMAIN", "127.0.0.1:8000")
+SITE_DOMAIN = os.getenv(
+    "SITE_DOMAIN",
+    "127.0.0.1:8000",
+)
+
 
 # ============================================================
 # AUTHENTICATION
 # ============================================================
 
 LOGIN_REDIRECT_URL = "/"
+
 LOGOUT_REDIRECT_URL = "/accounts/login/"
+
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
@@ -207,21 +214,33 @@ AUTHENTICATION_BACKENDS = [
 
 
 # ============================================================
-# DJANGO-ALLAUTH — ACCOUNT
+# DJANGO-ALLAUTH — REGULAR ACCOUNT
 # ============================================================
 
+# Login using email
 ACCOUNT_LOGIN_METHODS = {"email"}
 
+
+# Regular email/password signup fields
 ACCOUNT_SIGNUP_FIELDS = [
     "email*",
     "password1*",
     "password2*",
 ]
 
-# Email verification mandatory
+
+# ------------------------------------------------------------
+# EMAIL VERIFICATION
+# ------------------------------------------------------------
+#
+# This applies to the regular email/password account flow.
+#
+# Your custom tracker/views.py signup flow also has its own
+# 5-digit verification system.
+#
+
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 
-# 5-digit email verification code
 ACCOUNT_EMAIL_VERIFICATION_BY_CODE_ENABLED = True
 
 ACCOUNT_EMAIL_VERIFICATION_BY_CODE_FORMAT = {
@@ -231,15 +250,16 @@ ACCOUNT_EMAIL_VERIFICATION_BY_CODE_FORMAT = {
 }
 
 ACCOUNT_EMAIL_VERIFICATION_BY_CODE_MAX_ATTEMPTS = 3
+
 ACCOUNT_EMAIL_VERIFICATION_BY_CODE_TIMEOUT = 600
+
 ACCOUNT_EMAIL_VERIFICATION_SUPPORTS_RESEND = True
 
 
 # ============================================================
-# PASSWORD RESET — OTP
+# PASSWORD RESET — OTP / CODE
 # ============================================================
 
-# Password reset will use OTP/code instead of reset link
 ACCOUNT_PASSWORD_RESET_BY_CODE_ENABLED = True
 
 ACCOUNT_PASSWORD_RESET_BY_CODE_FORMAT = {
@@ -250,7 +270,7 @@ ACCOUNT_PASSWORD_RESET_BY_CODE_FORMAT = {
 
 
 # ============================================================
-# GOOGLE
+# GOOGLE SOCIAL LOGIN
 # ============================================================
 
 SOCIALACCOUNT_PROVIDERS = {
@@ -269,25 +289,35 @@ SOCIALACCOUNT_PROVIDERS = {
         "AUTH_PARAMS": {
             "access_type": "online",
         },
+
+        # Google provides the authenticated identity.
+        # Do not send the user through your regular
+        # email/password verification flow.
+        "VERIFIED_EMAIL": True,
     }
 }
 
-# Google button should POST/redirect directly
+
+# Google login button uses POST.
 SOCIALACCOUNT_LOGIN_ON_GET = False
 
 
 # ============================================================
-# EMAIL
+# EMAIL CONFIGURATION
 # ============================================================
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
 EMAIL_HOST = "smtp.gmail.com"
+
 EMAIL_PORT = 587
+
 EMAIL_USE_TLS = True
 
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+
 
 DEFAULT_FROM_EMAIL = os.getenv(
     "DEFAULT_FROM_EMAIL",
@@ -303,7 +333,10 @@ if not DEBUG:
 
     CSRF_TRUSTED_ORIGINS = [
         origin.strip()
-        for origin in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
+        for origin in os.getenv(
+            "CSRF_TRUSTED_ORIGINS",
+            "",
+        ).split(",")
         if origin.strip()
     ]
 
@@ -311,26 +344,29 @@ if not DEBUG:
         "HTTP_X_FORWARDED_PROTO",
         "https",
     )
-    
-    
-    
+
+
 # ============================================================
 # LOGGING
 # ============================================================
 
 LOGGING = {
     "version": 1,
+
     "disable_existing_loggers": False,
+
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
         },
     },
+
     "loggers": {
         "django": {
             "handlers": ["console"],
             "level": "ERROR",
         },
+
         "allauth": {
             "handlers": ["console"],
             "level": "DEBUG",

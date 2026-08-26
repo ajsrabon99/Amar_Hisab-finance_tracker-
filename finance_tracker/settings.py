@@ -256,6 +256,13 @@ ACCOUNT_EMAIL_VERIFICATION_BY_CODE_TIMEOUT = 600
 ACCOUNT_EMAIL_VERIFICATION_SUPPORTS_RESEND = True
 
 
+# ------------------------------------------------------------
+# GOOGLE / SOCIAL LOGIN
+# ------------------------------------------------------------
+
+# Google users do NOT go through Amar Hishab email verification.
+SOCIALACCOUNT_EMAIL_VERIFICATION = "none"
+
 # ============================================================
 # PASSWORD RESET — OTP / CODE
 # ============================================================
@@ -280,25 +287,19 @@ SOCIALACCOUNT_PROVIDERS = {
             "secret": os.getenv("GOOGLE_CLIENT_SECRET"),
             "key": "",
         },
-
         "SCOPE": [
             "profile",
             "email",
         ],
-
         "AUTH_PARAMS": {
             "access_type": "online",
         },
-
-        # Google provides the authenticated identity.
-        # Do not send the user through your regular
-        # email/password verification flow.
+        "EMAIL_AUTHENTICATION": True,
         "VERIFIED_EMAIL": True,
     }
 }
 
 
-# Google login button uses POST.
 SOCIALACCOUNT_LOGIN_ON_GET = False
 
 

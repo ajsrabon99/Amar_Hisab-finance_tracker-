@@ -5,9 +5,10 @@ Django==5.2.17
 django-allauth==65.19.1
 gunicorn==26.2.0
 idna==3.19
+PyJWT==2.13.0
 python-dotenv==1.2.3
 requests==2.34.2
 sqlparse==0.6.0
 tzdata==2026.3
 urllib3==2.7.0
-whitenoise
+whitenoise==6.12.0

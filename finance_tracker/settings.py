@@ -1,4 +1,7 @@
-"""Django settings for Amar Hishab — personal finance tracker."""
+"""
+Django settings for Amar Hishab — personal finance tracker.
+Google-only authentication.
+"""
 
 from pathlib import Path
 import os
@@ -28,7 +31,6 @@ ALLOWED_HOSTS = [
     if host.strip()
 ]
 
-
 # Local development
 if DEBUG and not ALLOWED_HOSTS:
     ALLOWED_HOSTS = [
@@ -42,6 +44,7 @@ if DEBUG and not ALLOWED_HOSTS:
 # ============================================================
 
 INSTALLED_APPS = [
+
     # Django
     "django.contrib.admin",
     "django.contrib.auth",
@@ -67,12 +70,19 @@ INSTALLED_APPS = [
 # ============================================================
 
 MIDDLEWARE = [
+
     "django.middleware.security.SecurityMiddleware",
+
     "django.contrib.sessions.middleware.SessionMiddleware",
+
     "django.middleware.common.CommonMiddleware",
+
     "django.middleware.csrf.CsrfViewMiddleware",
+
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+
     "django.contrib.messages.middleware.MessageMiddleware",
+
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 
     # django-allauth
@@ -99,8 +109,11 @@ TEMPLATES = [
 
         "OPTIONS": {
             "context_processors": [
+
                 "django.template.context_processors.request",
+
                 "django.contrib.auth.context_processors.auth",
+
                 "django.contrib.messages.context_processors.messages",
             ],
         },
@@ -125,6 +138,12 @@ DATABASES = {
 
 # ============================================================
 # PASSWORD VALIDATION
+# ============================================================
+#
+# Google-only authentication.
+# Normal users do not create passwords.
+#
+# Django admin can still use its own password authentication.
 # ============================================================
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -208,72 +227,36 @@ LOGOUT_REDIRECT_URL = "/accounts/login/"
 
 
 AUTHENTICATION_BACKENDS = [
+
+    # Required for Django admin
     "django.contrib.auth.backends.ModelBackend",
+
+    # django-allauth
     "allauth.account.auth_backends.AuthenticationBackend",
 ]
 
 
 # ============================================================
-# DJANGO-ALLAUTH — REGULAR ACCOUNT
+# DJANGO-ALLAUTH
+# GOOGLE ONLY
 # ============================================================
 
-# Login using email
-ACCOUNT_LOGIN_METHODS = {"email"}
-
-
-# Regular email/password signup fields
-ACCOUNT_SIGNUP_FIELDS = [
-    "email*",
-    "password1*",
-    "password2*",
-]
-
-
 # ------------------------------------------------------------
-# EMAIL VERIFICATION
+# IMPORTANT
 # ------------------------------------------------------------
 #
-# This applies to the regular email/password account flow.
+# Amar Hishab uses Google authentication only.
 #
-# Your custom tracker/views.py signup flow also has its own
-# 5-digit verification system.
+# No:
+#   - Email/password login
+#   - Email/password signup
+#   - Email verification
+#   - Password reset
 #
-
-ACCOUNT_EMAIL_VERIFICATION = "mandatory"
-
-ACCOUNT_EMAIL_VERIFICATION_BY_CODE_ENABLED = True
-
-ACCOUNT_EMAIL_VERIFICATION_BY_CODE_FORMAT = {
-    "numeric": True,
-    "dashed": False,
-    "length": 5,
-}
-
-ACCOUNT_EMAIL_VERIFICATION_BY_CODE_MAX_ATTEMPTS = 3
-
-ACCOUNT_EMAIL_VERIFICATION_BY_CODE_TIMEOUT = 600
-
-ACCOUNT_EMAIL_VERIFICATION_SUPPORTS_RESEND = True
-
-
-# ------------------------------------------------------------
-# GOOGLE / SOCIAL LOGIN
+# Users must authenticate through Google.
 # ------------------------------------------------------------
 
-# Google users do NOT go through Amar Hishab email verification.
-SOCIALACCOUNT_EMAIL_VERIFICATION = "none"
-
-# ============================================================
-# PASSWORD RESET — OTP / CODE
-# ============================================================
-
-ACCOUNT_PASSWORD_RESET_BY_CODE_ENABLED = True
-
-ACCOUNT_PASSWORD_RESET_BY_CODE_FORMAT = {
-    "numeric": True,
-    "dashed": False,
-    "length": 5,
-}
+SOCIALACCOUNT_ONLY = True
 
 
 # ============================================================
@@ -282,39 +265,79 @@ ACCOUNT_PASSWORD_RESET_BY_CODE_FORMAT = {
 
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
+
         "APP": {
             "client_id": os.getenv("GOOGLE_CLIENT_ID"),
             "secret": os.getenv("GOOGLE_CLIENT_SECRET"),
             "key": "",
         },
+
         "SCOPE": [
             "profile",
             "email",
         ],
+
         "AUTH_PARAMS": {
             "access_type": "online",
         },
+
+        # Allow verified Google email authentication
         "EMAIL_AUTHENTICATION": True,
+
         "VERIFIED_EMAIL": True,
     }
 }
 
 
+# Don't automatically start OAuth on GET.
+# Your template button will POST to Google login.
 SOCIALACCOUNT_LOGIN_ON_GET = False
 
 
 # ============================================================
+# SOCIAL ACCOUNT SIGNUP
+# ============================================================
+
+# Allow new users to create accounts using Google.
+SOCIALACCOUNT_AUTO_SIGNUP = True
+
+
+# Google already verifies the user's email.
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+
+# ============================================================
 # EMAIL
+# ============================================================
+#
+# Amar Hishab no longer sends verification emails.
+#
+# Keep SMTP configuration only if another part of your project
+# needs email later.
 # ============================================================
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
-EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.resend.com")
-EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
-EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True").lower() == "true"
+EMAIL_HOST = os.getenv(
+    "EMAIL_HOST",
+    "smtp.resend.com",
+)
 
-EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "resend")
-EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+EMAIL_PORT = int(
+    os.getenv("EMAIL_PORT", "587")
+)
+
+EMAIL_USE_TLS = (
+    os.getenv("EMAIL_USE_TLS", "True").lower() == "true"
+)
+
+EMAIL_HOST_USER = os.getenv(
+    "EMAIL_HOST_USER",
+    "resend",
+)
+
+EMAIL_HOST_PASSWORD = os.getenv(
+    "EMAIL_HOST_PASSWORD"
+)
 
 DEFAULT_FROM_EMAIL = os.getenv(
     "DEFAULT_FROM_EMAIL",
@@ -361,6 +384,7 @@ LOGGING = {
     },
 
     "loggers": {
+
         "django": {
             "handlers": ["console"],
             "level": "ERROR",

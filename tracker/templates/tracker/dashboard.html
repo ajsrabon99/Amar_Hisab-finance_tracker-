@@ -22,4 +22,5 @@ const catLabelsEn=[{% for r in expense_by_category %}"{{r.category__icon|escapej
 const catChart=new Chart(document.getElementById('catChart'),{type:'doughnut',data:{labels:catLabelsEn,datasets:[{data:catData}]},options:{plugins:{legend:{position:'right',labels:{color:'#edf1f7'}}}}});
 const methodChart=new Chart(document.getElementById('methodChart'),{type:'bar',data:{labels:methodLabels,datasets:[{label:'Expense',data:methodData}]},options:{plugins:{legend:{labels:{color:'#edf1f7'}}},scales:{x:{ticks:{color:'#edf1f7'}},y:{ticks:{color:'#edf1f7'}}}}});
 window.refreshChartsLanguage=function(lang){catChart.data.labels=lang==='bn'?catLabelsBn:catLabelsEn;methodChart.data.datasets[0].label=I18N[lang].expense;catChart.update();methodChart.update()};
-</script>{% endblock %}
+</script> {% endblock %}
+

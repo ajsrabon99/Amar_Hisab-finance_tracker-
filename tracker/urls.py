@@ -11,4 +11,7 @@ urlpatterns = [
     path("transactions/", views.transactions, name="transactions"),
     path("transactions/<int:pk>/delete/", views.delete_transaction, name="delete_transaction"),
     path("export/csv/", views.export_csv, name="export_csv"),
+    path('verify-email/', views.verify_email, name='verify_email'),
+    path('resend-code/', views.resend_code, name='resend_code'),
+    path('signup/', views.custom_signup, name='custom_signup'),  
 ]

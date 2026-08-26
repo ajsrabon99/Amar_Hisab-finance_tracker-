@@ -2,19 +2,25 @@
 <html lang="en" data-lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes"
+    />
     <meta name="theme-color" content="#0b0e13" />
+
     <title>
       {% block title %}
         Amar Hishab
       {% endblock %}
     </title>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
     <style>
       /* ============================================================
          GLOBAL VARIABLES
          ============================================================ */
-      
+
       :root {
         --bg: #0b0e13;
         --panel: #131821;
@@ -26,36 +32,43 @@
         --green: #35d39a;
         --red: #ff6b78;
         --yellow: #f6c85f;
-      
+
         --nav-bg: rgba(16, 20, 27, 0.92);
         --shadow: rgba(0, 0, 0, 0.28);
       }
-      
+
       * {
         box-sizing: border-box;
       }
-      
+
       html {
         scroll-behavior: smooth;
       }
-      
+
       body {
         margin: 0;
         background: var(--bg);
         color: var(--text);
-        font-family: Inter, 'Segoe UI', 'Noto Sans Bengali', system-ui, sans-serif;
-        transition: background 0.3s ease, color 0.3s ease;
+        font-family:
+          Inter,
+          "Segoe UI",
+          "Noto Sans Bengali",
+          system-ui,
+          sans-serif;
+        transition:
+          background 0.3s ease,
+          color 0.3s ease;
       }
-      
+
       a {
         color: inherit;
       }
-      
+
       /* ============================================================
          LIGHT THEME
          ============================================================ */
-      
-      [data-theme='light'] {
+
+      [data-theme="light"] {
         --bg: #f0f2f5;
         --panel: #ffffff;
         --panel2: #e8eaed;
@@ -66,1860 +79,3149 @@
         --green: #35d39a;
         --red: #ff6b78;
         --yellow: #f6c85f;
-      
+
         --nav-bg: rgba(255, 255, 255, 0.94);
         --shadow: rgba(0, 0, 0, 0.12);
       }
-      
+
       /* ============================================================
          SYSTEM THEME
          ============================================================ */
-      
+
       @media (prefers-color-scheme: light) {
-        [data-theme='system'] {
+        [data-theme="system"] {
           --bg: #f0f2f5;
           --panel: #ffffff;
           --panel2: #e8eaed;
           --border: #d1d5db;
           --text: #1a1a2e;
           --muted: #6b7280;
-      
+
           --nav-bg: rgba(255, 255, 255, 0.94);
           --shadow: rgba(0, 0, 0, 0.12);
         }
       }
-      
+
       @media (prefers-color-scheme: dark) {
-        [data-theme='system'] {
+        [data-theme="system"] {
           --nav-bg: rgba(16, 20, 27, 0.92);
           --shadow: rgba(0, 0, 0, 0.28);
         }
       }
-      
+
       /* ============================================================
          SCROLLBAR
          ============================================================ */
-      
+
       ::-webkit-scrollbar {
         width: 6px;
         height: 6px;
       }
-      
+
       ::-webkit-scrollbar-track {
         background: var(--panel);
       }
-      
+
       ::-webkit-scrollbar-thumb {
         background: var(--border);
         border-radius: 10px;
       }
-      
+
       ::-webkit-scrollbar-thumb:hover {
         background: var(--accent);
       }
-      
+
       /* ============================================================
          NAVIGATION
          ============================================================ */
-      
+
       nav {
         position: sticky;
         top: 0;
         z-index: 1000;
-      
+
         width: 100%;
         min-height: 64px;
-      
+
         display: flex;
         align-items: center;
-      
+
         gap: 16px;
         padding: 10px 22px;
-      
+
         background: var(--nav-bg);
-      
+
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
-      
+
         border-bottom: 1px solid var(--border);
-      
-        transition: background 0.25s ease, border-color 0.25s ease;
+
+        transition:
+          background 0.25s ease,
+          border-color 0.25s ease;
       }
-      
+
       /* ============================================================
          BRAND
          ============================================================ */
-      
+
       .brand {
         flex: 0 0 auto;
-      
+
         display: flex;
         align-items: center;
-      
+
         gap: 8px;
-      
+
         padding: 7px 8px;
-      
+
         border-radius: 10px;
-      
+
         color: var(--text);
-      
+
         text-decoration: none;
-      
+
         font-size: 18px;
         font-weight: 800;
-      
+
         letter-spacing: -0.02em;
-      
-        transition: background 0.18s ease, transform 0.18s ease;
+
+        transition:
+          background 0.18s ease,
+          transform 0.18s ease;
       }
-      
+
       .brand:hover {
         background: var(--panel2);
       }
-      
+
       .brand:active {
         transform: scale(0.98);
       }
-      
+
       .brand-mark {
         display: grid;
         place-items: center;
-      
+
         width: 28px;
         height: 28px;
-      
+
         border-radius: 8px;
-      
+
         background: var(--accent);
         color: #fff;
-      
+
         font-size: 11px;
         font-weight: 900;
-      
+
         letter-spacing: -0.04em;
         line-height: 1;
       }
-      
+
       .brand span {
         color: var(--text);
       }
-      
+
       /* ============================================================
          DESKTOP NAV LINKS
          ============================================================ */
-      
+
       .nav-links {
         display: flex;
         align-items: center;
-      
+
         gap: 3px;
-      
+
         min-width: 0;
       }
-      
+
       .nav-links a {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-      
+
         min-height: 38px;
-      
+
         padding: 8px 11px;
-      
+
         border-radius: 9px;
-      
+
         color: var(--muted);
-      
+
         text-decoration: none;
-      
+
         font-size: 13px;
         font-weight: 650;
-      
+
         white-space: nowrap;
-      
-        transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+
+        transition:
+          background 0.18s ease,
+          color 0.18s ease,
+          transform 0.18s ease;
       }
-      
+
       .nav-links a:hover,
       .nav-links a.active {
         background: var(--panel2);
         color: var(--text);
       }
-      
+
       .nav-links a:active {
         transform: scale(0.98);
       }
-      
+
       /* ============================================================
          NAV ACTIONS
          ============================================================ */
-      
+
       .nav-actions {
         margin-left: auto;
-      
+
         display: flex;
         align-items: center;
-      
+
         gap: 8px;
-      
+
         flex: 0 0 auto;
       }
-      
+
       /* ============================================================
          PROFILE LINK
          ============================================================ */
-      
+
       .profile-link {
         display: flex;
         align-items: center;
-      
+
         gap: 8px;
-      
+
         min-height: 38px;
-      
+
         padding: 3px 9px 3px 4px;
-      
+
         border: 1px solid var(--border);
         border-radius: 10px;
-      
+
         background: var(--panel2);
-      
+
         color: var(--text);
-      
+
         text-decoration: none;
-      
-        transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+
+        transition:
+          background 0.18s ease,
+          border-color 0.18s ease,
+          transform 0.18s ease;
       }
-      
+
       .profile-link:hover {
         background: var(--border);
         border-color: var(--accent);
       }
-      
+
       .profile-link:active {
         transform: scale(0.98);
       }
-      
+
       /* ============================================================
          PROFILE AVATAR
          ============================================================ */
-      
+
       .profile-avatar {
         width: 30px;
         height: 30px;
-      
+
         flex: 0 0 30px;
-      
+
         display: grid;
         place-items: center;
-      
+
         overflow: hidden;
-      
+
         border-radius: 50%;
-      
+
         background: var(--accent);
-      
+
         color: #fff;
-      
+
         font-size: 12px;
         font-weight: 900;
-      
+
         text-transform: uppercase;
       }
-      
+
       .profile-avatar img {
         width: 100%;
         height: 100%;
-      
+
         object-fit: cover;
-      
+
         display: block;
       }
-      
+
       /* ============================================================
          PROFILE NAME
          ============================================================ */
-      
+
       .profile-name {
         max-width: 125px;
-      
+
         overflow: hidden;
-      
+
         text-overflow: ellipsis;
-      
+
         white-space: nowrap;
-      
+
         color: var(--text);
-      
+
         font-size: 12px;
         font-weight: 700;
       }
-      
+
+      .user-profile-link {
+        display: inline-flex;
+        align-items: center;
+      }
+
       /* ============================================================
          LANGUAGE + THEME CONTROLS
          ============================================================ */
-      
+
       .controls {
         display: flex;
         align-items: center;
-      
+
         gap: 6px;
       }
-      
+
       .controls .lang,
       .controls .theme-toggle {
         display: flex;
         align-items: center;
-      
+
         padding: 3px;
-      
+
         gap: 2px;
-      
+
         background: var(--panel2);
-      
+
         border: 1px solid var(--border);
-      
+
         border-radius: 10px;
       }
-      
+
       .controls button {
         min-height: 30px;
-      
+
         border: 0;
-      
+
         background: transparent;
-      
+
         color: var(--muted);
-      
+
         padding: 5px 9px;
-      
+
         border-radius: 7px;
-      
+
         cursor: pointer;
-      
+
         font-family: inherit;
-      
+
         font-weight: 800;
         font-size: 11px;
-      
-        transition: background 0.18s ease, color 0.18s ease;
+
+        transition:
+          background 0.18s ease,
+          color 0.18s ease;
       }
-      
+
       .controls button:hover {
         color: var(--text);
         background: var(--border);
       }
-      
+
       .controls button.active {
         background: var(--accent);
         color: #fff;
       }
-      
+
       /* ============================================================
          LOGOUT
          ============================================================ */
-      
+
       .nav-logout {
         min-height: 36px;
-      
+
         padding: 0 12px;
-      
+
         border: 1px solid var(--border);
-      
+
         border-radius: 9px;
-      
+
         background: var(--panel2);
-      
+
         color: var(--text);
-      
+
         font-family: inherit;
-      
+
         font-size: 12px;
         font-weight: 700;
-      
+
         cursor: pointer;
-      
-        transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+
+        transition:
+          background 0.18s ease,
+          border-color 0.18s ease,
+          color 0.18s ease,
+          transform 0.18s ease;
       }
-      
+
       .nav-logout:hover {
         background: var(--red);
         border-color: var(--red);
         color: #fff;
       }
-      
+
       .nav-logout:active {
         transform: scale(0.97);
       }
-      
+
       /* ============================================================
          MOBILE MENU BUTTON
          ============================================================ */
-      
+
       .menu-toggle {
         display: none;
-      
+
         flex: 0 0 auto;
-      
+
         width: 40px;
         height: 40px;
-      
+
         margin-left: auto;
-      
+
         padding: 0;
-      
+
         border: 1px solid var(--border);
-      
+
         border-radius: 10px;
-      
+
         background: var(--panel2);
-      
+
         color: var(--text);
-      
+
         font-size: 20px;
-      
+
         line-height: 1;
-      
+
         cursor: pointer;
-      
-        transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+
+        transition:
+          background 0.18s ease,
+          border-color 0.18s ease,
+          color 0.18s ease,
+          transform 0.18s ease;
       }
-      
+
       .menu-toggle:hover {
         background: var(--border);
       }
-      
+
       .menu-toggle.open {
         background: var(--accent);
-      
+
         border-color: var(--accent);
-      
+
         color: #fff;
       }
-      
+
       .menu-toggle:active {
         transform: scale(0.95);
       }
-      
+
       /* ============================================================
          MOBILE MENU
          ============================================================ */
-      
+
       .mobile-menu {
         display: none;
       }
-      
+
       /* ============================================================
          MOBILE PROFILE
          ============================================================ */
-      
+
       .mobile-profile {
         width: 100%;
-      }
-      
-      .mobile-profile-link {
-        width: 100%;
-      
+
         display: flex;
         align-items: center;
-      
+
         gap: 10px;
-      
+
         padding: 9px;
-      
+
         border: 1px solid var(--border);
-      
+
         border-radius: 11px;
-      
+
         background: var(--panel2);
-      
+
         color: var(--text);
-      
+
         text-decoration: none;
-      
-        transition: background 0.18s ease, border-color 0.18s ease;
+
+        transition:
+          background 0.18s ease,
+          border-color 0.18s ease;
       }
-      
-      .mobile-profile-link:hover {
+
+      .mobile-profile:hover {
         background: var(--border);
         border-color: var(--accent);
       }
-      
-      .mobile-avatar {
+
+      .mobile-profile-avatar {
         width: 38px;
         height: 38px;
-      
+
         flex: 0 0 38px;
-      
+
+        display: grid;
+        place-items: center;
+
+        overflow: hidden;
+
+        border-radius: 50%;
+
+        background: var(--accent);
+
+        color: #fff;
+
         font-size: 13px;
+        font-weight: 900;
+
+        text-transform: uppercase;
       }
-      
+
+      .mobile-profile-avatar img {
+        width: 100%;
+        height: 100%;
+
+        object-fit: cover;
+
+        display: block;
+      }
+
       .mobile-profile-info {
         min-width: 0;
-      
+
         flex: 1;
-      
+
         display: flex;
         flex-direction: column;
-      
+
         gap: 2px;
       }
-      
-      .mobile-profile-info strong {
+
+      .mobile-profile-label {
         overflow: hidden;
-      
+
         text-overflow: ellipsis;
-      
+
         white-space: nowrap;
-      
+
         font-size: 13px;
         font-weight: 750;
-      
+
         color: var(--text);
       }
-      
-      .mobile-profile-info small {
+
+      .mobile-profile-email {
         overflow: hidden;
-      
+
         text-overflow: ellipsis;
-      
+
         white-space: nowrap;
-      
+
         font-size: 11px;
-      
+
         color: var(--muted);
       }
-      
+
       .profile-arrow {
         flex: 0 0 auto;
-      
+
         color: var(--muted);
-      
+
         font-size: 24px;
-      
+
         line-height: 1;
       }
-      
+
       /* ============================================================
          THEME DROPDOWN
          ============================================================ */
-      
+
       .theme-dropdown {
         position: relative;
-      
+
         display: inline-block;
       }
-      
+
       .theme-dropdown .theme-selector {
         display: flex;
         align-items: center;
         justify-content: space-between;
-      
+
         gap: 8px;
-      
+
         min-width: 112px;
         min-height: 36px;
-      
+
         padding: 7px 11px;
-      
+
         background: var(--panel2);
-      
+
         border: 1px solid var(--border);
-      
+
         border-radius: 9px;
-      
+
         color: var(--text);
-      
+
         font-family: inherit;
-      
+
         font-size: 12px;
         font-weight: 700;
-      
+
         cursor: pointer;
       }
-      
+
       .theme-dropdown .theme-selector:hover {
         background: var(--border);
       }
-      
+
       .theme-dropdown .theme-selector .arrow {
         font-size: 9px;
-      
+
         transition: transform 0.2s ease;
       }
-      
+
       .theme-dropdown .theme-selector .arrow.open {
         transform: rotate(180deg);
       }
-      
+
       .theme-dropdown .theme-options {
         display: none;
-      
+
         position: absolute;
-      
+
         top: calc(100% + 7px);
-      
+
         right: 0;
-      
+
         min-width: 150px;
-      
+
         padding: 5px;
-      
+
         background: var(--panel);
-      
+
         border: 1px solid var(--border);
-      
+
         border-radius: 11px;
-      
+
         box-shadow: 0 14px 35px var(--shadow);
-      
+
         z-index: 1100;
       }
-      
+
       .theme-dropdown .theme-options.open {
         display: block;
       }
-      
+
       .theme-dropdown .theme-options button {
         width: 100%;
-      
+
         display: flex;
         align-items: center;
-      
+
         gap: 9px;
-      
+
         min-height: 36px;
-      
+
         padding: 8px 10px;
-      
+
         border: 0;
-      
+
         border-radius: 7px;
-      
+
         background: transparent;
-      
+
         color: var(--text);
-      
+
         font-family: inherit;
-      
+
         font-size: 12px;
         font-weight: 600;
-      
+
         text-align: left;
-      
+
         cursor: pointer;
       }
-      
+
       .theme-dropdown .theme-options button:hover {
         background: var(--panel2);
       }
-      
+
       .theme-dropdown .theme-options button.active {
         background: var(--accent);
-      
+
         color: #fff;
       }
-      
+
       .theme-dropdown .theme-options button .check {
         margin-left: auto;
-      
+
         opacity: 0;
       }
-      
+
       .theme-dropdown .theme-options button.active .check {
         opacity: 1;
       }
-      
+
       /* ============================================================
          MOBILE LINKS
          ============================================================ */
-      
+
       .mobile-menu .mobile-links {
         display: grid;
-      
+
         gap: 4px;
       }
-      
+
       .mobile-menu .mobile-links a {
         display: flex;
         align-items: center;
-      
+
         min-height: 42px;
-      
+
         padding: 9px 12px;
-      
+
         border-radius: 9px;
-      
+
         color: var(--muted);
-      
+
         text-decoration: none;
-      
+
         font-size: 13px;
         font-weight: 650;
-      
-        transition: background 0.18s ease, color 0.18s ease;
+
+        transition:
+          background 0.18s ease,
+          color 0.18s ease;
       }
-      
+
       .mobile-menu .mobile-links a:hover,
       .mobile-menu .mobile-links a.active {
         background: var(--panel2);
-      
+
         color: var(--text);
       }
-      
+
       /* ============================================================
          MOBILE USER
          ============================================================ */
-      
+
       .mobile-menu .mobile-user {
         display: flex;
         align-items: center;
-      
+
         min-height: 42px;
-      
+
         padding: 0 12px;
-      
+
         border: 1px solid var(--border);
-      
+
         border-radius: 10px;
-      
+
         background: var(--panel2);
-      
+
         color: var(--muted);
-      
+
         font-size: 12px;
-      
+
         overflow: hidden;
-      
+
         text-overflow: ellipsis;
-      
+
         white-space: nowrap;
       }
-      
+
       /* ============================================================
          MOBILE CONTROLS
          ============================================================ */
-      
+
       .mobile-menu .mobile-control-row {
         display: grid;
-      
+
         grid-template-columns: 86px 1fr;
-      
+
         align-items: center;
-      
+
         gap: 10px;
       }
-      
+
       .mobile-menu .mobile-label {
         color: var(--muted);
-      
+
         font-size: 12px;
-      
+
         font-weight: 700;
       }
-      
+
       .mobile-menu .mobile-lang {
         display: flex;
-      
+
         width: max-content;
-      
+
         padding: 3px;
-      
+
         gap: 2px;
-      
+
         border: 1px solid var(--border);
-      
+
         border-radius: 9px;
-      
+
         background: var(--panel2);
       }
-      
+
       .mobile-menu .mobile-lang button {
         min-width: 48px;
-      
+
         min-height: 32px;
-      
+
         padding: 6px 9px;
-      
+
         border: 0;
-      
+
         border-radius: 7px;
-      
+
         background: transparent;
-      
+
         color: var(--muted);
-      
+
         font-family: inherit;
-      
+
         font-size: 11px;
-      
+
         font-weight: 800;
-      
+
         cursor: pointer;
       }
-      
+
       .mobile-menu .mobile-lang button:hover {
         color: var(--text);
       }
-      
+
       .mobile-menu .mobile-lang button.active {
         background: var(--accent);
-      
+
         color: #fff;
       }
-      
+
       /* ============================================================
          MOBILE THEME
          ============================================================ */
-      
+
       .mobile-menu .mobile-theme {
         width: 100%;
       }
-      
+
       .mobile-menu .mobile-theme .theme-selector {
         width: 100%;
       }
-      
+
       .mobile-menu .mobile-theme .theme-options {
         right: 0;
         left: 0;
-      
+
         width: 100%;
       }
-      
+
       /* ============================================================
          MOBILE LOGOUT
          ============================================================ */
-      
+
       .mobile-menu .mobile-logout {
         width: 100%;
-      
+
         min-height: 42px;
       }
-      
+
       /* ============================================================
          MOBILE DIVIDER
          ============================================================ */
-      
+
       .mobile-divider {
         height: 1px;
-      
+
         background: var(--border);
-      
+
         margin: 2px 0;
       }
-      
+
       /* ============================================================
          CONTENT
          ============================================================ */
-      
+
       .container {
         max-width: 1220px;
-      
+
         margin: auto;
-      
+
         padding: 24px;
-      
+
         transition: padding 0.3s ease;
       }
-      
+
       .top {
         display: flex;
-      
+
         justify-content: space-between;
-      
+
         align-items: end;
-      
+
         gap: 15px;
-      
+
         margin-bottom: 20px;
-      
+
         flex-wrap: wrap;
       }
-      
+
       .top h1 {
         margin: 0;
-      
+
         font-size: 27px;
       }
-      
+
       .muted {
         color: var(--muted);
       }
-      
+
       .actions {
         display: flex;
-      
+
         gap: 8px;
-      
+
         flex-wrap: wrap;
       }
-      
+
       .btn {
         display: inline-flex;
-      
+
         align-items: center;
-      
+
         justify-content: center;
-      
+
         gap: 7px;
-      
+
         padding: 10px 13px;
-      
+
         border-radius: 10px;
-      
+
         border: 1px solid var(--border);
-      
+
         background: var(--panel2);
-      
+
         color: var(--text);
-      
+
         text-decoration: none;
-      
+
         font-weight: 700;
-      
+
         font-size: 13px;
-      
+
         cursor: pointer;
-      
+
         transition: all 0.2s ease;
       }
-      
+
       .btn:hover {
         background: var(--border);
       }
-      
+
       .btn.primary {
         background: var(--accent);
-      
+
         border-color: var(--accent);
-      
+
         color: white;
       }
-      
+
       .btn.primary:hover {
         opacity: 0.9;
       }
-      
+
       .btn.danger {
         color: var(--red);
       }
-      
+
       .btn.danger:hover {
         background: var(--red);
-      
+
         color: white;
-      
+
         border-color: var(--red);
       }
-      
+
       /* ============================================================
          GRID / CARDS
          ============================================================ */
-      
+
       .grid {
         display: grid;
-      
+
         gap: 14px;
       }
-      
+
       .cards {
         grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
       }
-      
+
       .two {
         grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
       }
-      
+
       .card {
         background: var(--panel);
-      
+
         border: 1px solid var(--border);
-      
+
         border-radius: 16px;
-      
+
         padding: 18px;
-      
+
         transition: all 0.2s ease;
       }
-      
+
       .card:hover {
         border-color: var(--accent);
       }
-      
+
       .label {
         font-size: 12px;
-      
+
         color: var(--muted);
-      
+
         font-weight: 600;
-      
+
         text-transform: uppercase;
-      
+
         letter-spacing: 0.04em;
       }
-      
+
       .value {
         font-size: 26px;
-      
+
         font-weight: 800;
-      
+
         margin-top: 5px;
       }
-      
+
       .income {
         color: var(--green);
       }
-      
+
       .expense {
         color: var(--red);
       }
-      
+
       .balance {
         color: #b7adff;
       }
-      
+
       .section {
         margin: 27px 0 10px;
-      
+
         font-size: 14px;
-      
+
         font-weight: 800;
-      
+
         color: var(--muted);
-      
+
         text-transform: uppercase;
-      
+
         letter-spacing: 0.04em;
       }
-      
+
       .account-card {
         position: relative;
-      
+
         overflow: hidden;
       }
-      
+
       .account-card:after {
-        content: '';
-      
+        content: "";
+
         position: absolute;
-      
+
         right: -30px;
         top: -30px;
-      
+
         width: 90px;
         height: 90px;
-      
+
         border-radius: 50%;
-      
+
         background: #6d5dfc12;
       }
-      
+
       .account-name {
         font-weight: 750;
       }
-      
+
       .account-type {
         font-size: 11px;
-      
+
         color: var(--muted);
       }
-      
+
       /* ============================================================
          TABLE
          ============================================================ */
-      
+
       table {
         width: 100%;
-      
+
         border-collapse: collapse;
-      
+
         font-size: 13px;
       }
-      
+
       th,
       td {
         text-align: left;
-      
+
         padding: 11px 7px;
-      
+
         border-bottom: 1px solid var(--border);
       }
-      
+
       th {
         font-size: 11px;
-      
+
         color: var(--muted);
-      
+
         text-transform: uppercase;
-      
+
         font-weight: 700;
       }
-      
+
       tr:last-child td {
         border-bottom: 0;
       }
-      
+
       /* ============================================================
          BADGES
          ============================================================ */
-      
+
       .badge {
         display: inline-block;
-      
+
         padding: 4px 8px;
-      
+
         border-radius: 7px;
-      
+
         font-size: 11px;
-      
+
         font-weight: 800;
       }
-      
+
       .badge.income {
         background: #35d39a18;
-      
+
         color: var(--green);
       }
-      
+
       .badge.expense {
         background: #ff6b7818;
-      
+
         color: var(--red);
       }
-      
+
       /* ============================================================
          FORMS
          ============================================================ */
-      
+
       form.filter {
         display: flex;
-      
+
         gap: 8px;
-      
+
         flex-wrap: wrap;
-      
+
         margin-bottom: 18px;
-      
+
         align-items: center;
       }
-      
+
       input,
       select,
       textarea {
         width: 100%;
-      
+
         background: #0e131b;
-      
+
         color: var(--text);
-      
+
         border: 1px solid var(--border);
-      
+
         border-radius: 9px;
-      
+
         padding: 10px;
-      
+
         font: inherit;
-      
-        transition: border 0.2s ease, box-shadow 0.2s ease;
+
+        transition:
+          border 0.2s ease,
+          box-shadow 0.2s ease;
       }
-      
-      [data-theme='light'] input,
-      [data-theme='light'] select,
-      [data-theme='light'] textarea {
+
+      [data-theme="light"] input,
+      [data-theme="light"] select,
+      [data-theme="light"] textarea {
         background: #f0f2f5;
       }
-      
-      [data-theme='system'] input,
-      [data-theme='system'] select,
-      [data-theme='system'] textarea {
+
+      [data-theme="system"] input,
+      [data-theme="system"] select,
+      [data-theme="system"] textarea {
         background: #f0f2f5;
       }
-      
+
       @media (prefers-color-scheme: dark) {
-        [data-theme='system'] input,
-        [data-theme='system'] select,
-        [data-theme='system'] textarea {
+        [data-theme="system"] input,
+        [data-theme="system"] select,
+        [data-theme="system"] textarea {
           background: #0e131b;
         }
       }
-      
+
       input:focus,
       select:focus,
       textarea:focus {
         outline: none;
-      
+
         border-color: var(--accent);
-      
+
         box-shadow: 0 0 0 3px rgba(109, 93, 252, 0.15);
       }
-      
+
       textarea {
         min-height: 90px;
-      
+
         resize: vertical;
       }
-      
+
       .filter input,
       .filter select {
         width: auto;
-      
+
         min-width: 100px;
       }
-      
+
       .field {
         margin-bottom: 14px;
       }
-      
+
       .field label {
         display: block;
-      
+
         margin-bottom: 6px;
-      
+
         font-size: 12px;
-      
+
         color: var(--muted);
-      
+
         font-weight: 700;
       }
-      
+
       .form-card {
         max-width: 620px;
       }
-      
+
       .help {
         font-size: 11px;
-      
+
         color: var(--muted);
-      
+
         margin-top: 5px;
       }
-      
+
       /* ============================================================
          ALERTS
          ============================================================ */
-      
+
       .alert {
         padding: 11px 14px;
-      
+
         border-radius: 10px;
-      
+
         margin-bottom: 12px;
-      
+
         background: var(--panel2);
-      
+
         border: 1px solid var(--border);
-      
+
         font-size: 13px;
       }
-      
+
       .alert.success {
         border-color: #35d39a55;
-      
+
         color: var(--green);
       }
-      
+
       .alert.error {
         border-color: #ff6b7855;
-      
+
         color: var(--red);
       }
-      
+
       .alert.info {
         border-color: #4dabf755;
-      
+
         color: #4dabf7;
       }
-      
+
       /* ============================================================
          RESPONSIVE — TABLET
          ============================================================ */
-      
+
       @media (max-width: 1100px) {
         nav {
           padding: 9px 16px;
-      
+
           gap: 10px;
         }
-      
+
         .nav-links {
           gap: 2px;
         }
-      
+
         .nav-links a {
           padding: 8px 8px;
-      
+
           font-size: 12px;
         }
-      
+
         .profile-name {
           max-width: 90px;
         }
-      
+
         .theme-dropdown .theme-selector {
           min-width: 100px;
         }
       }
-      
+
       /* ============================================================
          RESPONSIVE — MOBILE / TABLET
          ============================================================ */
-      
+
       @media (max-width: 900px) {
         nav {
           padding: 9px 14px;
         }
-      
+
         .nav-links {
           display: none;
         }
-      
+
         .nav-actions {
           display: none;
         }
-      
+
         .menu-toggle {
           display: block;
         }
-      
+
         .mobile-menu {
           position: absolute;
-      
+
           top: calc(100% + 8px);
-      
+
           left: 10px;
           right: 10px;
-      
+
           display: none;
-      
+
           padding: 12px;
-      
+
           background: var(--panel);
-      
+
           border: 1px solid var(--border);
-      
+
           border-radius: 14px;
-      
+
           box-shadow: 0 18px 45px var(--shadow);
-      
+
           max-height: calc(100vh - 85px);
-      
+
           overflow-y: auto;
         }
-      
+
         .mobile-menu.open {
           display: grid;
-      
+
           gap: 9px;
         }
       }
-      
+
       /* ============================================================
          RESPONSIVE — SMALL MOBILE
          ============================================================ */
-      
+
       @media (max-width: 600px) {
         nav {
           min-height: 58px;
-      
+
           padding: 8px 10px;
         }
-      
+
         .brand {
           font-size: 16px;
-      
+
           padding: 6px 4px;
         }
-      
+
         .brand-mark {
           width: 26px;
           height: 26px;
-      
+
           font-size: 10px;
         }
-      
+
         .menu-toggle {
           width: 38px;
           height: 38px;
-      
+
           font-size: 19px;
         }
-      
+
         .mobile-menu {
           left: 8px;
           right: 8px;
-      
+
           padding: 11px;
         }
-      
+
         .container {
           padding: 16px 12px;
         }
-      
+
         .cards {
           grid-template-columns: 1fr;
         }
-      
+
         .two {
           grid-template-columns: 1fr;
         }
-      
+
         table {
           min-width: 650px;
         }
       }
-      
+
       /* ============================================================
          RESPONSIVE — VERY SMALL PHONES
          ============================================================ */
-      
+
       @media (max-width: 380px) {
         .brand {
           font-size: 14px;
         }
-      
+
         .brand-mark {
           width: 24px;
           height: 24px;
-      
+
           font-size: 9px;
         }
-      
+
         .menu-toggle {
           width: 36px;
           height: 36px;
-      
+
           font-size: 18px;
         }
-      
+
         .mobile-menu {
           padding: 10px;
         }
-      
+
         .mobile-menu .mobile-control-row {
           grid-template-columns: 74px 1fr;
         }
-      
+
         .mobile-menu .mobile-lang button {
           min-width: 42px;
         }
       }
     </style>
   </head>
+
   <body>
     <nav>
-      <!--  ============================================================
-       BRAND
-       ============================================================  -->
+      <!-- ============================================================
+           BRAND
+           ============================================================ -->
+
       <a class="brand" href="{% url 'tracker:dashboard' %}">
         <span class="brand-mark">AH</span>
-        <span data-i18n="brand">Amar Hishab</span>
+
+        <span data-i18n="brand">
+          Amar Hishab
+        </span>
       </a>
 
-      <!--  ============================================================
-       DESKTOP NAVIGATION
-       ============================================================  -->
+      <!-- ============================================================
+           DESKTOP NAVIGATION
+           ============================================================ -->
+
       <div class="nav-links">
-        <a href="{% url 'tracker:dashboard' %}" data-i18n="dashboard">Dashboard</a>
-
-        <a href="{% url 'tracker:transactions' %}" data-i18n="transactions">Transactions</a>
-
-        <a href="{% url 'tracker:yearly_overview' %}" data-i18n="yearly">Yearly</a>
-
-        <a href="{% url 'tracker:add_transaction' %}" data-i18n="add">Add</a>
-
-        <a href="{% url 'tracker:transfer_money' %}" data-i18n="transfer">Transfer</a>
-      </div>
-
-      <!--  ============================================================
-       DESKTOP ACTIONS
-       ============================================================  -->
-      <div class="nav-actions">
-        <!-- Profile -->
-        <a href="{% url 'tracker:profile' %}" class="profile-link">
-          <span class="profile-avatar">
-            {% if request.user.profile.photo %}
-              <img src="{{ request.user.profile.photo.url }}" alt="Profile" />
-            {% else %}
-              {{ request.user.profile.name|default:request.user.email|first|upper }}
-            {% endif %}
-          </span>
-
-          <span class="profile-name" data-i18n="profile">Profile</span>
+        <a
+          href="{% url 'tracker:dashboard' %}"
+          data-i18n="dashboard"
+        >
+          Dashboard
         </a>
 
-        <!-- Language + Theme -->
-        <div class="controls">
-          <!-- Language -->
-          <div class="lang">
-            <button type="button" data-language="en" data-i18n="lang_en">EN</button>
+        <a
+          href="{% url 'tracker:transactions' %}"
+          data-i18n="transactions"
+        >
+          Transactions
+        </a>
 
-            <button type="button" data-language="bn" data-i18n="lang_bn">বাং</button>
+        <a
+          href="{% url 'tracker:yearly_overview' %}"
+          data-i18n="yearly"
+        >
+          Yearly
+        </a>
+
+        <a
+          href="{% url 'tracker:add_transaction' %}"
+          data-i18n="add"
+        >
+          Add
+        </a>
+
+        <a
+          href="{% url 'tracker:transfer_money' %}"
+          data-i18n="transfer"
+        >
+          Transfer
+        </a>
+      </div>
+
+      <!-- ============================================================
+           DESKTOP ACTIONS
+           ============================================================ -->
+
+      <div class="nav-actions">
+
+        {% if request.user.is_authenticated %}
+
+          <!-- Profile -->
+          <a
+            href="{% url 'tracker:profile' %}"
+            class="profile-link"
+          >
+            <span class="profile-avatar">
+
+              {% if request.user.profile.photo %}
+                <img
+                  src="{{ request.user.profile.photo.url }}"
+                  alt="Profile"
+                />
+              {% else %}
+                {{ request.user.email|first|upper }}
+              {% endif %}
+
+            </span>
+
+            <span class="user-profile-link">
+              <span data-i18n="profile">
+                Profile
+              </span>
+            </span>
+          </a>
+
+        {% endif %}
+
+        <!-- ==========================================================
+             LANGUAGE + THEME
+             ========================================================== -->
+
+        <div class="controls">
+
+          <!-- Language -->
+
+          <div class="lang">
+
+            <button
+              type="button"
+              data-language="en"
+              data-i18n="lang_en"
+            >
+              EN
+            </button>
+
+            <button
+              type="button"
+              data-language="bn"
+              data-i18n="lang_bn"
+            >
+              বাং
+            </button>
+
           </div>
 
           <!-- Theme -->
-          <div class="theme-dropdown desktop-theme">
-            <button class="theme-selector" id="desktopThemeSelector" type="button" aria-haspopup="true" aria-expanded="false">
-              <span id="desktopThemeLabel">Dark</span>
 
-              <span class="arrow" id="desktopThemeArrow">▼</span>
+          <div class="theme-dropdown desktop-theme">
+
+            <button
+              class="theme-selector"
+              id="desktopThemeSelector"
+              type="button"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+
+              <span id="desktopThemeLabel">
+                Dark
+              </span>
+
+              <span
+                class="arrow"
+                id="desktopThemeArrow"
+              >
+                ▼
+              </span>
+
             </button>
 
-            <div class="theme-options" id="desktopThemeOptions">
-              <button type="button" data-theme="dark">
-                <span data-i18n="theme_dark">ডার্ক</span>
+            <div
+              class="theme-options"
+              id="desktopThemeOptions"
+            >
 
-                <span class="check">✓</span>
+              <button
+                type="button"
+                data-theme="dark"
+              >
+                <span data-i18n="theme_dark">
+                  Dark
+                </span>
+
+                <span class="check">
+                  ✓
+                </span>
               </button>
 
-              <button type="button" data-theme="light">
-                <span data-i18n="theme_light">লাইট</span>
+              <button
+                type="button"
+                data-theme="light"
+              >
+                <span data-i18n="theme_light">
+                  Light
+                </span>
 
-                <span class="check">✓</span>
+                <span class="check">
+                  ✓
+                </span>
               </button>
 
-              <button type="button" data-theme="system">
-                <span data-i18n="theme_system">সিস্টেম</span>
+              <button
+                type="button"
+                data-theme="system"
+              >
+                <span data-i18n="theme_system">
+                  System
+                </span>
 
-                <span class="check">✓</span>
+                <span class="check">
+                  ✓
+                </span>
               </button>
+
             </div>
           </div>
         </div>
 
-        <!-- Logout -->
-        <form method="post" action="/accounts/logout/" style="margin: 0;">
-          {% csrf_token %}
+        <!-- ==========================================================
+             LOGOUT
+             ========================================================== -->
 
-          <button class="nav-logout" type="submit" data-i18n="logout">Logout</button>
-        </form>
+        {% if request.user.is_authenticated %}
+
+          <form
+            method="post"
+            action="/accounts/logout/"
+            style="margin: 0;"
+          >
+            {% csrf_token %}
+
+            <button
+              class="nav-logout"
+              type="submit"
+              data-i18n="logout"
+            >
+              Logout
+            </button>
+          </form>
+
+        {% endif %}
+
       </div>
 
-      <!--  ============================================================
-       MOBILE MENU BUTTON
-       ============================================================  -->
-      <button class="menu-toggle" id="menuToggle" type="button" aria-label="Toggle menu" aria-expanded="false">☰</button>
+      <!-- ============================================================
+           MOBILE MENU BUTTON
+           ============================================================ -->
 
-      <!--  ============================================================
-       MOBILE MENU
-       ============================================================  -->
-      <div class="mobile-menu" id="mobileMenu">
+      <button
+        class="menu-toggle"
+        id="menuToggle"
+        type="button"
+        aria-label="Toggle menu"
+        aria-expanded="false"
+      >
+        ☰
+      </button>
+
+      <!-- ============================================================
+           MOBILE MENU
+           ============================================================ -->
+
+      <div
+        class="mobile-menu"
+        id="mobileMenu"
+      >
+
         <!-- Mobile Navigation Links -->
+
         <div class="mobile-links">
-          <a href="{% url 'tracker:dashboard' %}" data-i18n="dashboard">Dashboard</a>
 
-          <a href="{% url 'tracker:transactions' %}" data-i18n="transactions">Transactions</a>
+          <a
+            href="{% url 'tracker:dashboard' %}"
+            data-i18n="dashboard"
+          >
+            Dashboard
+          </a>
 
-          <a href="{% url 'tracker:yearly_overview' %}" data-i18n="yearly">Yearly</a>
+          <a
+            href="{% url 'tracker:transactions' %}"
+            data-i18n="transactions"
+          >
+            Transactions
+          </a>
 
-          <a href="{% url 'tracker:add_transaction' %}" data-i18n="add">+ Add</a>
+          <a
+            href="{% url 'tracker:yearly_overview' %}"
+            data-i18n="yearly"
+          >
+            Yearly
+          </a>
 
-          <a href="{% url 'tracker:transfer_money' %}" data-i18n="transfer">Transfer</a>
+          <a
+            href="{% url 'tracker:add_transaction' %}"
+            data-i18n="add"
+          >
+            + Add
+          </a>
+
+          <a
+            href="{% url 'tracker:transfer_money' %}"
+            data-i18n="transfer"
+          >
+            Transfer
+          </a>
+
         </div>
 
         <div class="mobile-divider"></div>
 
-        <!--  ============================================================
-         MOBILE PROFILE
-         ============================================================  -->
-        <a href="{% url 'tracker:profile' %}" class="mobile-profile">
-          <span class="mobile-profile-avatar">
-            {% if request.user.profile.photo %}
-              <img src="{{ request.user.profile.photo.url }}" alt="Profile" />
-            {% else %}
-              {{ request.user.profile.name|default:request.user.email|first|upper }}
-            {% endif %}
-          </span>
+        <!-- ==========================================================
+             MOBILE PROFILE
 
-          <span class="mobile-profile-info">
-            <span class="mobile-profile-label" data-i18n="profile">Profile</span>
+             IMPORTANT:
+             This section is protected with is_authenticated.
+             AnonymousUser will never access request.user.profile.
+             ========================================================== -->
 
-            <span class="mobile-profile-email">{{ request.user.email|default:request.user.username }}</span>
-          </span>
-        </a>
+        {% if request.user.is_authenticated %}
 
-        <div class="mobile-divider"></div>
+          <a
+            href="{% url 'tracker:profile' %}"
+            class="mobile-profile"
+          >
 
-        <!--  ============================================================
-         MOBILE LANGUAGE
-         ============================================================  -->
+            <span class="mobile-profile-avatar">
+
+              {% if request.user.profile.photo %}
+
+                <img
+                  src="{{ request.user.profile.photo.url }}"
+                  alt="Profile"
+                />
+
+              {% else %}
+
+                {{ request.user.profile.name|default:request.user.email|first|upper }}
+
+              {% endif %}
+
+            </span>
+
+            <span class="mobile-profile-info">
+
+              <span
+                class="mobile-profile-label"
+                data-i18n="profile"
+              >
+                Profile
+              </span>
+
+              <span class="mobile-profile-email">
+
+                {% if request.user.email %}
+                  {{ request.user.email }}
+                {% else %}
+                  {{ request.user.username }}
+                {% endif %}
+
+              </span>
+
+            </span>
+
+            <span class="profile-arrow">
+              ›
+            </span>
+
+          </a>
+
+          <div class="mobile-divider"></div>
+
+        {% endif %}
+
+        <!-- ==========================================================
+             MOBILE LANGUAGE
+             ========================================================== -->
+
         <div class="mobile-control-row">
-          <span class="mobile-label" data-i18n="language">Language</span>
+
+          <span
+            class="mobile-label"
+            data-i18n="language"
+          >
+            Language
+          </span>
 
           <div class="mobile-lang">
-            <button type="button" data-language="en" data-i18n="lang_en">EN</button>
 
-            <button type="button" data-language="bn" data-i18n="lang_bn">বাংলা</button>
-          </div>
-        </div>
-
-        <!--  ============================================================
-         MOBILE THEME
-         ============================================================  -->
-        <div class="mobile-control-row">
-          <span class="mobile-label" data-i18n="theme">Theme</span>
-
-          <div class="theme-dropdown mobile-theme">
-            <button class="theme-selector" id="mobileThemeSelector" type="button" aria-haspopup="true" aria-expanded="false">
-              <span id="mobileThemeLabel">ডার্ক</span>
-
-              <span class="arrow" id="mobileThemeArrow">▼</span>
+            <button
+              type="button"
+              data-language="en"
+              data-i18n="lang_en"
+            >
+              EN
             </button>
 
-            <div class="theme-options" id="mobileThemeOptions">
-              <button type="button" data-theme="dark">
-                <span data-i18n="theme_dark">ডার্ক</span>
+            <button
+              type="button"
+              data-language="bn"
+              data-i18n="lang_bn"
+            >
+              বাংলা
+            </button>
 
-                <span class="check">✓</span>
-              </button>
-
-              <button type="button" data-theme="light">
-                <span data-i18n="theme_light">লাইট</span>
-
-                <span class="check">✓</span>
-              </button>
-
-              <button type="button" data-theme="system">
-                <span data-i18n="theme_system">সিস্টেম</span>
-
-                <span class="check">✓</span>
-              </button>
-            </div>
           </div>
+
         </div>
 
-        <div class="mobile-divider"></div>
+        <!-- ==========================================================
+             MOBILE THEME
+             ========================================================== -->
 
-        <!--  ============================================================
-         MOBILE LOGOUT
-         ============================================================  -->
-        <form method="post" action="/accounts/logout/" style="margin: 0;">
-          {% csrf_token %}
+        <div class="mobile-control-row">
 
-          <button class="nav-logout mobile-logout" type="submit" data-i18n="logout">Logout</button>
-        </form>
+          <span
+            class="mobile-label"
+            data-i18n="theme"
+          >
+            Theme
+          </span>
+
+          <div class="theme-dropdown mobile-theme">
+
+            <button
+              class="theme-selector"
+              id="mobileThemeSelector"
+              type="button"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+
+              <span id="mobileThemeLabel">
+                Dark
+              </span>
+
+              <span
+                class="arrow"
+                id="mobileThemeArrow"
+              >
+                ▼
+              </span>
+
+            </button>
+
+            <div
+              class="theme-options"
+              id="mobileThemeOptions"
+            >
+
+              <button
+                type="button"
+                data-theme="dark"
+              >
+                <span data-i18n="theme_dark">
+                  Dark
+                </span>
+
+                <span class="check">
+                  ✓
+                </span>
+              </button>
+
+              <button
+                type="button"
+                data-theme="light"
+              >
+                <span data-i18n="theme_light">
+                  Light
+                </span>
+
+                <span class="check">
+                  ✓
+                </span>
+              </button>
+
+              <button
+                type="button"
+                data-theme="system"
+              >
+                <span data-i18n="theme_system">
+                  System
+                </span>
+
+                <span class="check">
+                  ✓
+                </span>
+              </button>
+
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ==========================================================
+             MOBILE LOGOUT
+             ========================================================== -->
+
+        {% if request.user.is_authenticated %}
+
+          <div class="mobile-divider"></div>
+
+          <form
+            method="post"
+            action="/accounts/logout/"
+            style="margin: 0;"
+          >
+            {% csrf_token %}
+
+            <button
+              class="nav-logout mobile-logout"
+              type="submit"
+              data-i18n="logout"
+            >
+              Logout
+            </button>
+
+          </form>
+
+        {% endif %}
+
       </div>
     </nav>
 
+    <!-- ============================================================
+         MAIN CONTENT
+         ============================================================ -->
+
     <div class="container">
+
       {% if messages %}
+
         {% for message in messages %}
-          <div class="alert {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</div>
+
+          <div
+            class="alert {% if message.tags %}{{ message.tags }}{% endif %}"
+          >
+            {{ message }}
+          </div>
+
         {% endfor %}
+
       {% endif %}
+
       {% block content %}
 
       {% endblock %}
+
     </div>
 
+    <!-- ============================================================
+         JAVASCRIPT
+         ============================================================ -->
+
     <script>
+
       // ============================================================
       // I18N
       // ============================================================
-      const I18N = { en: { brand: 'Amar Hishab', language: 'Language', theme: 'Theme', lang_en: 'EN', lang_bn: 'BN', theme_dark: ' Dark', theme_light: 'Light', theme_system: 'System', dashboard: 'Dashboard', transactions: 'Transactions', yearly: 'Yearly', add: '+ Add', transfer: 'Transfer', logout: 'Logout', greeting: 'Good to see you', income: 'Income', expense: 'Expense', total_balance: 'Total Balance', monthly_income: 'Monthly Income', monthly_expense: 'Monthly Expense', saved: 'Saved This Month', accounts: 'Your Accounts', recent: 'Recent Transactions', category: 'Category', method: 'Account / Method', amount: 'Amount', date: 'Date', description: 'Description', no_data: 'No transactions yet', view_all: 'View all', month_summary: 'Monthly Summary', expense_category: 'Expense by Category', expense_method: 'Expense by Payment Method', income_source: 'Income Sources', received_via: 'Received via', yearly_summary: 'Yearly Summary', show: 'Show', transfer_title: 'Move Money Between Accounts', from: 'From', to: 'To', save_transfer: 'Save Transfer', transfer_note: 'Transfers are not income or expense. The exact amount is moved between accounts.', add_title: 'Add Transaction', transaction_type: 'Transaction Type', income_source_label: 'Income Source', expense_category_label: 'Expense Category', received_method: 'Received via', payment_method: 'Payment Method', save: 'Save Transaction', description_optional: 'Description (optional)', no_hidden_fee: 'The amount you enter is recorded exactly. No automatic fee or 0.03 is deducted.', other_source: 'Where did it come from?', search: 'Search', all: 'All', export: 'Export CSV', delete: 'Delete', profile: 'Profile', profile_title: 'My Profile',
-    profile_subtitle: 'Manage your personal information and account settings.', }, bn: { brand: 'আমার হিসাব', language: 'ভাষা', theme: 'থিম', lang_en: 'EN', lang_bn: 'বাংলা', theme_dark: 'ডার্ক', theme_light: 'লাইট', theme_system: 'সিস্টেম', dashboard: 'ড্যাশবোর্ড', transactions: 'লেনদেন', yearly: 'বার্ষিক', add: '+ যোগ করুন', transfer: 'টাকা ট্রান্সফার', logout: 'লগআউট', greeting: 'আবারও স্বাগতম', income: 'আয়', expense: 'খরচ', total_balance: 'মোট ব্যালেন্স', monthly_income: 'মাসের আয়', monthly_expense: 'মাসের খরচ', saved: 'এই মাসে সঞ্চয়', accounts: 'আপনার অ্যাকাউন্ট', recent: 'সাম্প্রতিক লেনদেন', category: 'খাত', method: 'অ্যাকাউন্ট / মাধ্যম', amount: 'পরিমাণ', date: 'তারিখ', description: 'বিবরণ', no_data: 'এখনও কোনো লেনদেন নেই', view_all: 'সব দেখুন', month_summary: 'মাসিক সারসংক্ষেপ', expense_category: 'খাত অনুযায়ী খরচ', expense_method: 'পেমেন্ট মাধ্যম অনুযায়ী খরচ', income_source: 'আয়ের উৎস', received_via: 'যেভাবে পেয়েছেন', yearly_summary: 'বার্ষিক সারসংক্ষেপ', show: 'দেখুন', transfer_title: 'এক অ্যাকাউন্ট থেকে অন্যটিতে টাকা দিন', from: 'যে অ্যাকাউন্ট থেকে', to: 'যে অ্যাকাউন্টে', save_transfer: 'ট্রান্সফার সংরক্ষণ করুন', transfer_note: 'ট্রান্সফার আয় বা খরচ হিসেবে ধরা হবে না। সঠিক পরিমাণ এক অ্যাকাউন্ট থেকে অন্যটিতে যাবে।', add_title: 'লেনদেন যোগ করুন', transaction_type: 'লেনদেনের ধরন', income_source_label: 'আয়ের উৎস', expense_category_label: 'খরচের খাত', received_method: 'যেভাবে পেয়েছেন', payment_method: 'পেমেন্ট মাধ্যম', save: 'লেনদেন সংরক্ষণ করুন', description_optional: 'বিবরণ (ঐচ্ছিক)', no_hidden_fee: 'আপনি যত টাকা লিখবেন ঠিক তত টাকাই সংরক্ষণ হবে। কোনো অটোমেটিক ফি বা ০.০৩ টাকা কাটা হবে না।', other_source: 'কোথা থেকে এসেছে?', search: 'খুঁজুন', all: 'সব', export: 'CSV এক্সপোর্ট', delete: 'ডিলিট', profile: 'প্রোফাইল', profile_title: 'আমার প্রোফাইল',
-    profile_subtitle: 'আপনার ব্যক্তিগত তথ্য এবং অ্যাকাউন্ট সেটিংস পরিচালনা করুন।' } }
-      const MONTHS = { en: ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'], bn: ['', 'জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'] }
-      
-      // Theme labels
+
+      const I18N = {
+
+        en: {
+          brand: "Amar Hishab",
+
+          language: "Language",
+
+          theme: "Theme",
+
+          lang_en: "EN",
+
+          lang_bn: "BN",
+
+          theme_dark: "Dark",
+
+          theme_light: "Light",
+
+          theme_system: "System",
+
+          dashboard: "Dashboard",
+
+          transactions: "Transactions",
+
+          yearly: "Yearly",
+
+          add: "+ Add",
+
+          transfer: "Transfer",
+
+          logout: "Logout",
+
+          greeting: "Good to see you",
+
+          income: "Income",
+
+          expense: "Expense",
+
+          total_balance: "Total Balance",
+
+          monthly_income: "Monthly Income",
+
+          monthly_expense: "Monthly Expense",
+
+          saved: "Saved This Month",
+
+          accounts: "Your Accounts",
+
+          recent: "Recent Transactions",
+
+          category: "Category",
+
+          method: "Account / Method",
+
+          amount: "Amount",
+
+          date: "Date",
+
+          description: "Description",
+
+          no_data: "No transactions yet",
+
+          view_all: "View all",
+
+          month_summary: "Monthly Summary",
+
+          expense_category: "Expense by Category",
+
+          expense_method: "Expense by Payment Method",
+
+          income_source: "Income Sources",
+
+          received_via: "Received via",
+
+          yearly_summary: "Yearly Summary",
+
+          show: "Show",
+
+          transfer_title: "Move Money Between Accounts",
+
+          from: "From",
+
+          to: "To",
+
+          save_transfer: "Save Transfer",
+
+          transfer_note:
+            "Transfers are not income or expense. The exact amount is moved between accounts.",
+
+          add_title: "Add Transaction",
+
+          transaction_type: "Transaction Type",
+
+          income_source_label: "Income Source",
+
+          expense_category_label: "Expense Category",
+
+          received_method: "Received via",
+
+          payment_method: "Payment Method",
+
+          save: "Save Transaction",
+
+          description_optional: "Description (optional)",
+
+          no_hidden_fee:
+            "The amount you enter is recorded exactly. No automatic fee or 0.03 is deducted.",
+
+          other_source: "Where did it come from?",
+
+          search: "Search",
+
+          all: "All",
+
+          export: "Export CSV",
+
+          delete: "Delete",
+
+          profile: "Profile",
+
+          profile_title: "My Profile",
+
+          profile_subtitle:
+            "Manage your personal information and account settings."
+        },
+
+        bn: {
+          brand: "আমার হিসাব",
+
+          language: "ভাষা",
+
+          theme: "থিম",
+
+          lang_en: "EN",
+
+          lang_bn: "বাংলা",
+
+          theme_dark: "ডার্ক",
+
+          theme_light: "লাইট",
+
+          theme_system: "সিস্টেম",
+
+          dashboard: "ড্যাশবোর্ড",
+
+          transactions: "লেনদেন",
+
+          yearly: "বার্ষিক",
+
+          add: "+ যোগ করুন",
+
+          transfer: "টাকা ট্রান্সফার",
+
+          logout: "লগআউট",
+
+          greeting: "আবারও স্বাগতম",
+
+          income: "আয়",
+
+          expense: "খরচ",
+
+          total_balance: "মোট ব্যালেন্স",
+
+          monthly_income: "মাসের আয়",
+
+          monthly_expense: "মাসের খরচ",
+
+          saved: "এই মাসে সঞ্চয়",
+
+          accounts: "আপনার অ্যাকাউন্ট",
+
+          recent: "সাম্প্রতিক লেনদেন",
+
+          category: "খাত",
+
+          method: "অ্যাকাউন্ট / মাধ্যম",
+
+          amount: "পরিমাণ",
+
+          date: "তারিখ",
+
+          description: "বিবরণ",
+
+          no_data: "এখনও কোনো লেনদেন নেই",
+
+          view_all: "সব দেখুন",
+
+          month_summary: "মাসিক সারসংক্ষেপ",
+
+          expense_category: "খাত অনুযায়ী খরচ",
+
+          expense_method: "পেমেন্ট মাধ্যম অনুযায়ী খরচ",
+
+          income_source: "আয়ের উৎস",
+
+          received_via: "যেভাবে পেয়েছেন",
+
+          yearly_summary: "বার্ষিক সারসংক্ষেপ",
+
+          show: "দেখুন",
+
+          transfer_title:
+            "এক অ্যাকাউন্ট থেকে অন্যটিতে টাকা দিন",
+
+          from: "যে অ্যাকাউন্ট থেকে",
+
+          to: "যে অ্যাকাউন্টে",
+
+          save_transfer:
+            "ট্রান্সফার সংরক্ষণ করুন",
+
+          transfer_note:
+            "ট্রান্সফার আয় বা খরচ হিসেবে ধরা হবে না। সঠিক পরিমাণ এক অ্যাকাউন্ট থেকে অন্যটিতে যাবে।",
+
+          add_title: "লেনদেন যোগ করুন",
+
+          transaction_type: "লেনদেনের ধরন",
+
+          income_source_label: "আয়ের উৎস",
+
+          expense_category_label: "খরচের খাত",
+
+          received_method: "যেভাবে পেয়েছেন",
+
+          payment_method: "পেমেন্ট মাধ্যম",
+
+          save: "লেনদেন সংরক্ষণ করুন",
+
+          description_optional:
+            "বিবরণ (ঐচ্ছিক)",
+
+          no_hidden_fee:
+            "আপনি যত টাকা লিখবেন ঠিক তত টাকাই সংরক্ষণ হবে। কোনো অটোমেটিক ফি বা ০.০৩ টাকা কাটা হবে না।",
+
+          other_source: "কোথা থেকে এসেছে?",
+
+          search: "খুঁজুন",
+
+          all: "সব",
+
+          export: "CSV এক্সপোর্ট",
+
+          delete: "ডিলিট",
+
+          profile: "প্রোফাইল",
+
+          profile_title: "আমার প্রোফাইল",
+
+          profile_subtitle:
+            "আপনার ব্যক্তিগত তথ্য এবং অ্যাকাউন্ট সেটিংস পরিচালনা করুন।"
+        }
+
+      };
+
+
+      const MONTHS = {
+
+        en: [
+          "",
+          "January",
+          "February",
+          "March",
+          "April",
+          "May",
+          "June",
+          "July",
+          "August",
+          "September",
+          "October",
+          "November",
+          "December"
+        ],
+
+        bn: [
+          "",
+          "জানুয়ারি",
+          "ফেব্রুয়ারি",
+          "মার্চ",
+          "এপ্রিল",
+          "মে",
+          "জুন",
+          "জুলাই",
+          "আগস্ট",
+          "সেপ্টেম্বর",
+          "অক্টোবর",
+          "নভেম্বর",
+          "ডিসেম্বর"
+        ]
+
+      };
+
+
+      // ============================================================
+      // THEME LABELS
+      // ============================================================
+
       const THEME_LABELS = {
-        en: { dark: 'Dark', light: 'Light', system: 'System' },
-        bn: { dark: 'ডার্ক', light: 'লাইট', system: 'সিস্টেম' }
-      }
-      
+
+        en: {
+          dark: "Dark",
+          light: "Light",
+          system: "System"
+        },
+
+        bn: {
+          dark: "ডার্ক",
+          light: "লাইট",
+          system: "সিস্টেম"
+        }
+
+      };
+
+
       // ============================================================
       // LANGUAGE
       // ============================================================
+
       function applyLanguage(lang) {
-        lang = lang === 'bn' ? 'bn' : 'en'
-        localStorage.setItem('financeTrackerLanguage', lang)
-        document.documentElement.lang = lang
-        document.documentElement.setAttribute('data-lang', lang)
-      
-        document.querySelectorAll('[data-i18n]').forEach((e) => {
-          let k = e.dataset.i18n
-          if (I18N[lang][k] !== undefined) e.textContent = I18N[lang][k]
-        })
-        document.querySelectorAll('[data-i18n-placeholder]').forEach((e) => {
-          let k = e.dataset.i18nPlaceholder
-          if (I18N[lang][k] !== undefined) e.placeholder = I18N[lang][k]
-        })
-        document.querySelectorAll('[data-month]').forEach((e) => {
-          e.textContent = MONTHS[lang][e.dataset.month] || e.textContent
-        })
-        document.querySelectorAll('[data-category-en]').forEach((e) => {
-          e.textContent = lang === 'bn' ? e.dataset.categoryBn || e.dataset.categoryEn : e.dataset.categoryEn
-        })
-      
-        document.querySelectorAll('.lang button').forEach((b) => {
-          b.classList.toggle('active', b.dataset.language === lang)
-        })
-      
-        const currentTheme = localStorage.getItem('financeTrackerTheme') || 'system'
-        const themeLabel = THEME_LABELS[lang][currentTheme]
-        const desktopThemeLabel = document.getElementById('desktopThemeLabel')
-        const mobileThemeLabel = document.getElementById('mobileThemeLabel')
-        if (desktopThemeLabel) desktopThemeLabel.textContent = themeLabel
-        if (mobileThemeLabel) mobileThemeLabel.textContent = themeLabel
-      
-        if (window.refreshChartsLanguage) window.refreshChartsLanguage(lang)
-        window.dispatchEvent(new CustomEvent('languageChanged', { detail: { lang } }))
+
+        lang = lang === "bn" ? "bn" : "en";
+
+        localStorage.setItem(
+          "financeTrackerLanguage",
+          lang
+        );
+
+        document.documentElement.lang = lang;
+
+        document.documentElement.setAttribute(
+          "data-lang",
+          lang
+        );
+
+
+        document
+          .querySelectorAll("[data-i18n]")
+          .forEach((element) => {
+
+            const key = element.dataset.i18n;
+
+            if (
+              I18N[lang] &&
+              I18N[lang][key] !== undefined
+            ) {
+              element.textContent =
+                I18N[lang][key];
+            }
+
+          });
+
+
+        document
+          .querySelectorAll("[data-i18n-placeholder]")
+          .forEach((element) => {
+
+            const key =
+              element.dataset.i18nPlaceholder;
+
+            if (
+              I18N[lang] &&
+              I18N[lang][key] !== undefined
+            ) {
+              element.placeholder =
+                I18N[lang][key];
+            }
+
+          });
+
+
+        document
+          .querySelectorAll("[data-month]")
+          .forEach((element) => {
+
+            const month =
+              element.dataset.month;
+
+            element.textContent =
+              MONTHS[lang][month] ||
+              element.textContent;
+
+          });
+
+
+        document
+          .querySelectorAll("[data-category-en]")
+          .forEach((element) => {
+
+            element.textContent =
+              lang === "bn"
+                ? element.dataset.categoryBn ||
+                  element.dataset.categoryEn
+                : element.dataset.categoryEn;
+
+          });
+
+
+        document
+          .querySelectorAll(
+            ".lang button, .mobile-lang button"
+          )
+          .forEach((button) => {
+
+            button.classList.toggle(
+              "active",
+              button.dataset.language === lang
+            );
+
+          });
+
+
+        const currentTheme =
+          localStorage.getItem(
+            "financeTrackerTheme"
+          ) || "system";
+
+
+        const themeLabel =
+          THEME_LABELS[lang][currentTheme];
+
+
+        const desktopThemeLabel =
+          document.getElementById(
+            "desktopThemeLabel"
+          );
+
+
+        const mobileThemeLabel =
+          document.getElementById(
+            "mobileThemeLabel"
+          );
+
+
+        if (desktopThemeLabel) {
+          desktopThemeLabel.textContent =
+            themeLabel;
+        }
+
+
+        if (mobileThemeLabel) {
+          mobileThemeLabel.textContent =
+            themeLabel;
+        }
+
+
+        if (
+          window.refreshChartsLanguage
+        ) {
+          window.refreshChartsLanguage(lang);
+        }
+
+
+        window.dispatchEvent(
+          new CustomEvent(
+            "languageChanged",
+            {
+              detail: {
+                lang: lang
+              }
+            }
+          )
+        );
+
       }
-      
+
+
       // ============================================================
       // THEME
       // ============================================================
+
       function getCurrentLanguage() {
-        return localStorage.getItem('financeTrackerLanguage') || 'en'
+
+        return (
+          localStorage.getItem(
+            "financeTrackerLanguage"
+          ) || "en"
+        );
+
       }
-      
+
+
       function setTheme(theme) {
-        const valid = ['dark', 'light', 'system']
-        if (!valid.includes(theme)) theme = 'system'
-      
-        localStorage.setItem('financeTrackerTheme', theme)
-        document.documentElement.setAttribute('data-theme', theme)
-      
-        const lang = getCurrentLanguage()
-        const label = THEME_LABELS[lang][theme]
-      
-        const desktopLabel = document.getElementById('desktopThemeLabel')
-        const mobileLabel = document.getElementById('mobileThemeLabel')
-        if (desktopLabel) desktopLabel.textContent = label
-        if (mobileLabel) mobileLabel.textContent = label
-      
-        document.querySelectorAll('.theme-options button').forEach((b) => {
-          b.classList.toggle('active', b.dataset.theme === theme)
-        })
-      
-        const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
-        const meta = document.querySelector('meta[name="theme-color"]')
-        if (meta) meta.content = isDark ? '#0b0e13' : '#f0f2f5'
-      
-        window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme, isDark } }))
+
+        const validThemes = [
+          "dark",
+          "light",
+          "system"
+        ];
+
+
+        if (!validThemes.includes(theme)) {
+          theme = "system";
+        }
+
+
+        localStorage.setItem(
+          "financeTrackerTheme",
+          theme
+        );
+
+
+        document.documentElement.setAttribute(
+          "data-theme",
+          theme
+        );
+
+
+        const lang =
+          getCurrentLanguage();
+
+
+        const label =
+          THEME_LABELS[lang][theme];
+
+
+        const desktopLabel =
+          document.getElementById(
+            "desktopThemeLabel"
+          );
+
+
+        const mobileLabel =
+          document.getElementById(
+            "mobileThemeLabel"
+          );
+
+
+        if (desktopLabel) {
+          desktopLabel.textContent =
+            label;
+        }
+
+
+        if (mobileLabel) {
+          mobileLabel.textContent =
+            label;
+        }
+
+
+        document
+          .querySelectorAll(
+            ".theme-options button"
+          )
+          .forEach((button) => {
+
+            button.classList.toggle(
+              "active",
+              button.dataset.theme === theme
+            );
+
+          });
+
+
+        const isDark =
+          theme === "dark" ||
+          (
+            theme === "system" &&
+            window.matchMedia(
+              "(prefers-color-scheme: dark)"
+            ).matches
+          );
+
+
+        const meta =
+          document.querySelector(
+            'meta[name="theme-color"]'
+          );
+
+
+        if (meta) {
+          meta.content =
+            isDark
+              ? "#0b0e13"
+              : "#f0f2f5";
+        }
+
+
+        window.dispatchEvent(
+          new CustomEvent(
+            "themeChanged",
+            {
+              detail: {
+                theme: theme,
+                isDark: isDark
+              }
+            }
+          )
+        );
+
       }
-      
+
+
       // ============================================================
-      // MOBILE / THEME MENUS
+      // THEME DROPDOWNS
       // ============================================================
+
       function closeThemeDropdowns() {
-        document.querySelectorAll('.theme-options').forEach((el) => el.classList.remove('open'))
-        document.querySelectorAll('.theme-selector .arrow').forEach((el) => el.classList.remove('open'))
+
+        document
+          .querySelectorAll(".theme-options")
+          .forEach((element) => {
+
+            element.classList.remove("open");
+
+          });
+
+
+        document
+          .querySelectorAll(
+            ".theme-selector .arrow"
+          )
+          .forEach((element) => {
+
+            element.classList.remove("open");
+
+          });
+
+
+        document
+          .querySelectorAll(
+            ".theme-selector"
+          )
+          .forEach((button) => {
+
+            button.setAttribute(
+              "aria-expanded",
+              "false"
+            );
+
+          });
+
       }
-      
-      function toggleThemeDropdown(selectorId, optionsId, arrowId) {
-        const options = document.getElementById(optionsId)
-        const arrow = document.getElementById(arrowId)
-        if (!options) return
-        const willOpen = !options.classList.contains('open')
-        closeThemeDropdowns()
+
+
+      function toggleThemeDropdown(
+        selectorId,
+        optionsId,
+        arrowId
+      ) {
+
+        const options =
+          document.getElementById(
+            optionsId
+          );
+
+
+        const arrow =
+          document.getElementById(
+            arrowId
+          );
+
+
+        const selector =
+          document.getElementById(
+            selectorId
+          );
+
+
+        if (!options) {
+          return;
+        }
+
+
+        const willOpen =
+          !options.classList.contains(
+            "open"
+          );
+
+
+        closeThemeDropdowns();
+
+
         if (willOpen) {
-          options.classList.add('open')
-          if (arrow) arrow.classList.add('open')
+
+          options.classList.add(
+            "open"
+          );
+
+
+          if (arrow) {
+            arrow.classList.add(
+              "open"
+            );
+          }
+
+
+          if (selector) {
+            selector.setAttribute(
+              "aria-expanded",
+              "true"
+            );
+          }
+
         }
+
       }
-      
+
+
+      // ============================================================
+      // MOBILE MENU
+      // ============================================================
+
       function closeMobileMenu() {
-        const menu = document.getElementById('mobileMenu')
-        const toggle = document.getElementById('menuToggle')
-        if (menu) menu.classList.remove('open')
-        if (toggle) {
-          toggle.textContent = '☰'
-          toggle.classList.remove('open')
-          toggle.setAttribute('aria-expanded', 'false')
+
+        const menu =
+          document.getElementById(
+            "mobileMenu"
+          );
+
+
+        const toggle =
+          document.getElementById(
+            "menuToggle"
+          );
+
+
+        if (menu) {
+          menu.classList.remove(
+            "open"
+          );
         }
-        closeThemeDropdowns()
+
+
+        if (toggle) {
+
+          toggle.textContent = "☰";
+
+          toggle.classList.remove(
+            "open"
+          );
+
+          toggle.setAttribute(
+            "aria-expanded",
+            "false"
+          );
+
+        }
+
+
+        closeThemeDropdowns();
+
       }
-      
+
+
       function toggleMenu() {
-        const menu = document.getElementById('mobileMenu')
-        const toggle = document.getElementById('menuToggle')
-        if (!menu || !toggle) return
-      
-        const isOpen = menu.classList.toggle('open')
-        toggle.textContent = isOpen ? '✕' : '☰'
-        toggle.classList.toggle('open', isOpen)
-        toggle.setAttribute('aria-expanded', String(isOpen))
-        if (!isOpen) closeThemeDropdowns()
+
+        const menu =
+          document.getElementById(
+            "mobileMenu"
+          );
+
+
+        const toggle =
+          document.getElementById(
+            "menuToggle"
+          );
+
+
+        if (!menu || !toggle) {
+          return;
+        }
+
+
+        const isOpen =
+          menu.classList.toggle(
+            "open"
+          );
+
+
+        toggle.textContent =
+          isOpen
+            ? "✕"
+            : "☰";
+
+
+        toggle.classList.toggle(
+          "open",
+          isOpen
+        );
+
+
+        toggle.setAttribute(
+          "aria-expanded",
+          String(isOpen)
+        );
+
+
+        if (!isOpen) {
+          closeThemeDropdowns();
+        }
+
       }
-      
+
+
       // ============================================================
       // INIT
       // ============================================================
-      document.addEventListener('DOMContentLoaded', function () {
-        const savedLang = localStorage.getItem('financeTrackerLanguage') || 'en'
-        applyLanguage(savedLang)
-      
-        document.querySelectorAll('.lang button,.mobile-lang button').forEach((b) => {
-          b.onclick = () => applyLanguage(b.dataset.language)
-        })
-      
-        const savedTheme = localStorage.getItem('financeTrackerTheme') || 'system'
-        setTheme(savedTheme)
-      
-        const desktopSelector = document.getElementById('desktopThemeSelector')
-        const mobileSelector = document.getElementById('mobileThemeSelector')
-      
-        if (desktopSelector) {
-          desktopSelector.addEventListener('click', function (e) {
-            e.stopPropagation()
-            toggleThemeDropdown('desktopThemeSelector', 'desktopThemeOptions', 'desktopThemeArrow')
-          })
+
+      document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+          // --------------------------------------------------------
+          // Language
+          // --------------------------------------------------------
+
+          const savedLang =
+            localStorage.getItem(
+              "financeTrackerLanguage"
+            ) || "en";
+
+
+          applyLanguage(
+            savedLang
+          );
+
+
+          document
+            .querySelectorAll(
+              ".lang button, .mobile-lang button"
+            )
+            .forEach((button) => {
+
+              button.onclick =
+                () => {
+
+                  applyLanguage(
+                    button.dataset.language
+                  );
+
+                };
+
+            });
+
+
+          // --------------------------------------------------------
+          // Theme
+          // --------------------------------------------------------
+
+          const savedTheme =
+            localStorage.getItem(
+              "financeTrackerTheme"
+            ) || "system";
+
+
+          setTheme(
+            savedTheme
+          );
+
+
+          // --------------------------------------------------------
+          // Theme selectors
+          // --------------------------------------------------------
+
+          const desktopSelector =
+            document.getElementById(
+              "desktopThemeSelector"
+            );
+
+
+          const mobileSelector =
+            document.getElementById(
+              "mobileThemeSelector"
+            );
+
+
+          if (desktopSelector) {
+
+            desktopSelector.addEventListener(
+              "click",
+              function (event) {
+
+                event.stopPropagation();
+
+
+                toggleThemeDropdown(
+                  "desktopThemeSelector",
+                  "desktopThemeOptions",
+                  "desktopThemeArrow"
+                );
+
+              }
+            );
+
+          }
+
+
+          if (mobileSelector) {
+
+            mobileSelector.addEventListener(
+              "click",
+              function (event) {
+
+                event.stopPropagation();
+
+
+                toggleThemeDropdown(
+                  "mobileThemeSelector",
+                  "mobileThemeOptions",
+                  "mobileThemeArrow"
+                );
+
+              }
+            );
+
+          }
+
+
+          // --------------------------------------------------------
+          // Theme options
+          // --------------------------------------------------------
+
+          document
+            .querySelectorAll(
+              ".theme-options button"
+            )
+            .forEach((button) => {
+
+              button.addEventListener(
+                "click",
+                function (event) {
+
+                  event.stopPropagation();
+
+
+                  setTheme(
+                    this.dataset.theme
+                  );
+
+
+                  closeThemeDropdowns();
+
+                }
+              );
+
+            });
+
+
+          // --------------------------------------------------------
+          // Global click
+          // --------------------------------------------------------
+
+          document.addEventListener(
+            "click",
+            function (event) {
+
+              if (
+                !event.target.closest(
+                  ".theme-dropdown"
+                )
+              ) {
+                closeThemeDropdowns();
+              }
+
+
+              if (
+                !event.target.closest(
+                  "#mobileMenu"
+                ) &&
+                !event.target.closest(
+                  "#menuToggle"
+                )
+              ) {
+                closeMobileMenu();
+              }
+
+            }
+          );
+
+
+          // --------------------------------------------------------
+          // Mobile menu toggle
+          // --------------------------------------------------------
+
+          const menuToggle =
+            document.getElementById(
+              "menuToggle"
+            );
+
+
+          if (menuToggle) {
+
+            menuToggle.addEventListener(
+              "click",
+              function (event) {
+
+                event.stopPropagation();
+
+                toggleMenu();
+
+              }
+            );
+
+          }
+
+
+          // --------------------------------------------------------
+          // Mobile links
+          // --------------------------------------------------------
+
+          document
+            .querySelectorAll(
+              ".mobile-links a"
+            )
+            .forEach((link) => {
+
+              link.addEventListener(
+                "click",
+                closeMobileMenu
+              );
+
+            });
+
+
+          // --------------------------------------------------------
+          // Highlight current page
+          // --------------------------------------------------------
+
+          const currentPath =
+            window.location.pathname
+              .replace(/\/$/, "") ||
+            "/";
+
+
+          document
+            .querySelectorAll(
+              ".nav-links a, .mobile-links a"
+            )
+            .forEach((link) => {
+
+              try {
+
+                const linkPath =
+                  new URL(
+                    link.href,
+                    window.location.origin
+                  )
+                    .pathname
+                    .replace(/\/$/, "") ||
+                  "/";
+
+
+                link.classList.toggle(
+                  "active",
+                  linkPath === currentPath
+                );
+
+              } catch (error) {
+                // Ignore invalid URLs.
+              }
+
+            });
+
+
+          // --------------------------------------------------------
+          // System theme changes
+          // --------------------------------------------------------
+
+          const colorScheme =
+            window.matchMedia(
+              "(prefers-color-scheme: dark)"
+            );
+
+
+          colorScheme.addEventListener(
+            "change",
+            function () {
+
+              if (
+                localStorage.getItem(
+                  "financeTrackerTheme"
+                ) === "system"
+              ) {
+
+                setTheme(
+                  "system"
+                );
+
+              }
+
+            }
+          );
+
+
+          // --------------------------------------------------------
+          // Resize
+          // --------------------------------------------------------
+
+          window.addEventListener(
+            "resize",
+            function () {
+
+              if (
+                window.innerWidth > 1050
+              ) {
+                closeMobileMenu();
+              }
+
+            }
+          );
+
         }
-        if (mobileSelector) {
-          mobileSelector.addEventListener('click', function (e) {
-            e.stopPropagation()
-            toggleThemeDropdown('mobileThemeSelector', 'mobileThemeOptions', 'mobileThemeArrow')
-          })
-        }
-      
-        document.querySelectorAll('.theme-options button').forEach((b) => {
-          b.addEventListener('click', function (e) {
-            e.stopPropagation()
-            setTheme(this.dataset.theme)
-            closeThemeDropdowns()
-          })
-        })
-      
-        document.addEventListener('click', function (e) {
-          if (!e.target.closest('.theme-dropdown')) closeThemeDropdowns()
-          if (!e.target.closest('#mobileMenu') && !e.target.closest('#menuToggle')) closeMobileMenu()
-        })
-      
-        document.getElementById('menuToggle')?.addEventListener('click', function (e) {
-          e.stopPropagation()
-          toggleMenu()
-        })
-      
-        document.querySelectorAll('.mobile-links a').forEach((a) => {
-          a.addEventListener('click', closeMobileMenu)
-        })
-      
-        // Highlight the current page in both desktop and mobile navigation.
-        const currentPath = window.location.pathname.replace(/\/$/, '') || '/'
-        document.querySelectorAll('.nav-links a,.mobile-links a').forEach((a) => {
-          try {
-            const linkPath = new URL(a.href, window.location.origin).pathname.replace(/\/$/, '') || '/'
-            a.classList.toggle('active', linkPath === currentPath)
-          } catch (err) {}
-        })
-      
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () {
-          if (localStorage.getItem('financeTrackerTheme') === 'system') setTheme('system')
-        })
-      
-        window.addEventListener('resize', function () {
-          if (window.innerWidth > 1050) closeMobileMenu()
-        })
-      })
-      
-      // Expose globally
-      window.applyLanguage = applyLanguage
-      window.setTheme = setTheme
+      );
+
+
+      // ============================================================
+      // EXPOSE GLOBALLY
+      // ============================================================
+
+      window.applyLanguage =
+        applyLanguage;
+
+      window.setTheme =
+        setTheme;
+
     </script>
+
+
     {% block extra_js %}
 
     {% endblock %}
+
   </body>
 </html>

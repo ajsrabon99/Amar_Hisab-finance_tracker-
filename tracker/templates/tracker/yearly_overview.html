@@ -1,4 +1,675 @@
-{% extends "tracker/base.html" %}{% block title %}Yearly Overview{% endblock %}{% block content %}<div class="top"><div><h1>📅 {{year}} · <span data-i18n="yearly_summary">Yearly Summary</span></h1></div></div><form class="filter" method="get"><select name="year">{% for y in years_range %}<option value="{{y}}" {% if y == year %}selected{% endif %}>{{y}}</option>{% endfor %}</select><button class="btn primary" data-i18n="show">Show</button></form>
-<div class="grid cards"><div class="card"><div class="label" data-i18n="monthly_income">Yearly Income</div><div class="value income">৳ {{total_income|floatformat:2}}</div></div><div class="card"><div class="label" data-i18n="monthly_expense">Yearly Expense</div><div class="value expense">৳ {{total_expense|floatformat:2}}</div></div><div class="card"><div class="label" data-i18n="saved">Yearly Saved</div><div class="value">৳ {{net|floatformat:2}}</div></div></div>
-<div class="card" style="margin-top:18px"><div class="label" data-i18n="yearly_summary">Yearly Summary</div><canvas id="yearChart" height="110"></canvas></div><div class="section" data-i18n="expense_category">Expense by Category</div><div class="card"><table><tr><th data-i18n="category">Category</th><th data-i18n="amount">Amount</th></tr>{% for r in expense_by_category %}<tr><td>{{r.category__icon}} <span data-category-en="{{r.category__name|escape}}" data-category-bn="{{r.category__name_bn|default:r.category__name|escape}}">{{r.category__name}}</span></td><td>৳ {{r.total|floatformat:2}}</td></tr>{% empty %}<tr><td colspan="2" data-i18n="no_data">No transactions yet</td></tr>{% endfor %}</table></div>
-{% endblock %}{% block extra_js %}<script>const labels=[{% for m in monthly_data %}'{{m.month}}',{% endfor %}],income=[{% for m in monthly_data %}{{m.income}},{% endfor %}],expense=[{% for m in monthly_data %}{{m.expense}},{% endfor %}];new Chart(document.getElementById('yearChart'),{type:'bar',data:{labels,datasets:[{label:'Income',data:income},{label:'Expense',data:expense}]},options:{scales:{x:{ticks:{color:'#edf1f7'}},y:{ticks:{color:'#edf1f7'}}},plugins:{legend:{labels:{color:'#edf1f7'}}}}});</script>{% endblock %}
+{% extends "tracker/base.html" %}
+
+{% block title %}Yearly Overview{% endblock %}
+
+{% block content %}
+<style>
+  /* ============================================================
+     YEARLY OVERVIEW – refined UI with new color scheme
+     ============================================================ */
+
+  .yearly-page {
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+
+  /* ============================================================
+     TOP HEADER
+     ============================================================ */
+
+  .yearly-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+  }
+
+  .yearly-top h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .yearly-top h1 .year-emoji {
+    margin-right: 4px;
+  }
+
+  /* ============================================================
+     FILTER BAR
+     ============================================================ */
+
+  .filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    margin-bottom: 24px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    flex-wrap: wrap;
+    transition: border-color 0.2s ease;
+  }
+
+  .filter-bar:hover {
+    border-color: var(--accent);
+  }
+
+  .filter-bar select {
+    padding: 10px 16px;
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font: inherit;
+    font-size: 14px;
+    min-height: 42px;
+    min-width: 130px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .filter-bar select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.10);
+  }
+  [data-theme="dark"] .filter-bar select:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  }
+
+  /* ============================================================
+     BUTTONS
+     ============================================================ */
+
+  .btn-yearly {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 10px 20px;
+    border-radius: 40px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--text);
+    text-decoration: none;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .btn-yearly:hover {
+    background: var(--panel2);
+    border-color: var(--accent);
+  }
+
+  .btn-yearly:active {
+    transform: scale(0.97);
+  }
+
+  .btn-yearly.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(30, 64, 175, 0.20);
+  }
+  [data-theme="dark"] .btn-yearly.primary {
+    box-shadow: 0 2px 10px rgba(59, 130, 246, 0.25);
+  }
+
+  .btn-yearly.primary:hover {
+    background: var(--accent-light);
+    border-color: var(--accent-light);
+    opacity: 0.95;
+  }
+
+  /* ============================================================
+     SUMMARY CARDS
+     ============================================================ */
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .summary-card {
+    position: relative;
+    overflow: hidden;
+    min-width: 0;
+    padding: 20px 22px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .summary-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+    box-shadow: 0 4px 18px var(--shadow);
+  }
+
+  .summary-card::after {
+    content: "";
+    position: absolute;
+    width: 90px;
+    height: 90px;
+    right: -35px;
+    bottom: -35px;
+    border-radius: 50%;
+    background: rgba(30, 64, 175, 0.05);
+    pointer-events: none;
+  }
+  [data-theme="dark"] .summary-card::after {
+    background: rgba(59, 130, 246, 0.07);
+  }
+
+  .summary-label {
+    margin-bottom: 8px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .summary-value {
+    color: var(--text);
+    font-size: 24px;
+    line-height: 1.2;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    word-break: break-word;
+  }
+
+  .summary-value.income {
+    color: var(--success);
+  }
+
+  .summary-value.expense {
+    color: var(--danger);
+  }
+
+  /* ============================================================
+     CHART CARD
+     ============================================================ */
+
+  .chart-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    margin-bottom: 24px;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .chart-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 18px var(--shadow);
+  }
+
+  .chart-card .label {
+    margin-bottom: 14px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .chart-wrapper {
+    position: relative;
+    width: 100%;
+    height: 280px;
+  }
+
+  .chart-wrapper canvas {
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  /* ============================================================
+     SECTION TITLE
+     ============================================================ */
+
+  .section-title {
+    margin: 28px 0 14px;
+    color: var(--text);
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+
+  /* ============================================================
+     TABLE CARD
+     ============================================================ */
+
+  .table-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .table-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 18px var(--shadow);
+  }
+
+  .table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 4px;
+  }
+
+  .year-table {
+    width: 100%;
+    min-width: 400px;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .year-table th {
+    padding: 14px 16px;
+    color: var(--muted);
+    background: var(--panel2);
+    font-size: 10px;
+    font-weight: 700;
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+
+  .year-table td {
+    padding: 14px 16px;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  .year-table tbody tr:last-child td {
+    border-bottom: 0;
+  }
+
+  .year-table tbody tr:hover td {
+    background: var(--panel2);
+  }
+
+  .year-table .amount-cell {
+    font-weight: 700;
+    white-space: nowrap;
+    text-align: right;
+  }
+
+  .year-table .amount-cell.income {
+    color: var(--success);
+  }
+
+  .year-table .amount-cell.expense {
+    color: var(--danger);
+  }
+
+  /* ============================================================
+     EMPTY STATE
+     ============================================================ */
+
+  .empty-state {
+    padding: 30px 20px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .empty-state-icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+    opacity: 0.6;
+  }
+
+  /* ============================================================
+     RESPONSIVE
+     ============================================================ */
+
+  @media (max-width: 700px) {
+    .yearly-top {
+      flex-direction: column;
+    }
+
+    .yearly-top h1 {
+      font-size: 24px;
+    }
+
+    .filter-bar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .filter-bar select {
+      min-width: 0;
+      width: 100%;
+    }
+
+    .filter-bar .btn-yearly {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .summary-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .summary-grid .summary-card:last-child {
+      grid-column: 1 / -1;
+    }
+
+    .chart-wrapper {
+      height: 220px;
+    }
+
+    .year-table {
+      min-width: 350px;
+    }
+
+    .year-table th,
+    .year-table td {
+      padding: 10px 12px;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .summary-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .summary-grid .summary-card:last-child {
+      grid-column: auto;
+    }
+
+    .chart-wrapper {
+      height: 200px;
+    }
+
+    .yearly-top h1 {
+      font-size: 21px;
+    }
+
+    .chart-card {
+      padding: 16px 14px;
+    }
+
+    .table-card {
+      padding: 0;
+    }
+
+    .year-table th,
+    .year-table td {
+      padding: 8px 10px;
+      font-size: 12px;
+    }
+  }
+</style>
+
+<div class="yearly-page">
+  <!-- HEADER -->
+  <div class="yearly-top">
+    <h1>
+      <span class="year-emoji"></span>
+      {{ year }} ·
+      <span data-i18n="yearly_summary">Yearly Summary</span>
+    </h1>
+  </div>
+
+  <!-- FILTER -->
+  <form class="filter-bar" method="get">
+    <select name="year">
+      {% for y in years_range %}
+        <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn-yearly primary" data-i18n="show">
+      <span>↻</span> Show
+    </button>
+  </form>
+
+  <!-- SUMMARY CARDS -->
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="summary-label" data-i18n="monthly_income">Yearly Income</div>
+      <div class="summary-value income">৳ {{ total_income|floatformat:2 }}</div>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-label" data-i18n="monthly_expense">Yearly Expense</div>
+      <div class="summary-value expense">৳ {{ total_expense|floatformat:2 }}</div>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-label" data-i18n="saved">Yearly Saved</div>
+      <div class="summary-value">৳ {{ net|floatformat:2 }}</div>
+    </div>
+  </div>
+
+  <!-- CHART -->
+  <div class="chart-card">
+    <div class="label" data-i18n="yearly_summary">Yearly Summary</div>
+    <div class="chart-wrapper">
+      <canvas id="yearChart"></canvas>
+    </div>
+  </div>
+
+  <!-- EXPENSE BY CATEGORY -->
+  <div class="section-title" data-i18n="expense_category">Expense by Category</div>
+
+  <div class="table-card">
+    <div class="table-wrap">
+      <table class="year-table">
+        <thead>
+          <tr>
+            <th data-i18n="category">Category</th>
+            <th data-i18n="amount" style="text-align:right;">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in expense_by_category %}
+            <tr>
+              <td>
+                {{ r.category__icon }}
+                <span data-category-en="{{ r.category__name|escape }}" data-category-bn="{{ r.category__name_bn|default:r.category__name|escape }}">
+                  {{ r.category__name }}
+                </span>
+              </td>
+              <td class="amount-cell expense">৳ {{ r.total|floatformat:2 }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="2">
+                <div class="empty-state">
+                  <div class="empty-state-icon">📊</div>
+                  <span data-i18n="no_data">No transactions yet</span>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  /* ================================================================
+     YEARLY CHART – with dynamic theme support
+     ================================================================ */
+
+  const labels = [
+    {% for m in monthly_data %}'{{ m.month }}',{% endfor %}
+  ];
+
+  const incomeData = [
+    {% for m in monthly_data %}{{ m.income }},{% endfor %}
+  ];
+
+  const expenseData = [
+    {% for m in monthly_data %}{{ m.expense }},{% endfor %}
+  ];
+
+  function getChartColors() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
+      (document.documentElement.getAttribute('data-theme') === 'system' &&
+       window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+    return {
+      text: isDark ? '#F9FAFB' : '#1F2937',
+      muted: isDark ? '#9CA3AF' : '#6B7280',
+      grid: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
+    };
+  }
+
+  const ctx = document.getElementById('yearChart').getContext('2d');
+
+  const yearChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Income',
+          data: incomeData,
+          backgroundColor: 'rgba(16, 185, 129, 0.70)',
+          borderColor: 'rgba(16, 185, 129, 1)',
+          borderWidth: 1,
+          borderRadius: 4,
+        },
+        {
+          label: 'Expense',
+          data: expenseData,
+          backgroundColor: 'rgba(239, 68, 68, 0.70)',
+          borderColor: 'rgba(239, 68, 68, 1)',
+          borderWidth: 1,
+          borderRadius: 4,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        intersect: false,
+        mode: 'index',
+      },
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: {
+            color: getChartColors().text,
+            padding: 16,
+            usePointStyle: true,
+            pointStyle: 'circle',
+            font: {
+              size: 12,
+              weight: '600',
+            }
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const value = context.raw || 0;
+              return context.dataset.label + ': ৳ ' + Number(value).toLocaleString('en-BD', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              });
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: {
+            display: false,
+          },
+          ticks: {
+            color: getChartColors().text,
+            font: {
+              size: 11,
+              weight: '600',
+            }
+          }
+        },
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: getChartColors().grid,
+          },
+          ticks: {
+            color: getChartColors().muted,
+            font: {
+              size: 10,
+            },
+            callback: function(value) {
+              return '৳ ' + Number(value).toLocaleString('en-BD');
+            }
+          }
+        }
+      }
+    }
+  });
+
+  /* ================================================================
+     THEME SUPPORT – update chart colors on theme change
+     ================================================================ */
+
+  function updateYearChartTheme() {
+    const colors = getChartColors();
+    yearChart.options.plugins.legend.labels.color = colors.text;
+    yearChart.options.scales.x.ticks.color = colors.text;
+    yearChart.options.scales.y.ticks.color = colors.muted;
+    yearChart.options.scales.y.grid.color = colors.grid;
+    yearChart.update();
+  }
+
+  window.addEventListener('themeChanged', function(e) {
+    updateYearChartTheme();
+  });
+
+  /* ================================================================
+     LANGUAGE SUPPORT – update chart labels
+     ================================================================ */
+
+  window.refreshChartsLanguage = function(lang) {
+    // Yearly chart uses month names from server (already localized via data-month)
+    // So we just need to update the dataset labels
+    lang = lang === 'bn' ? 'bn' : 'en';
+
+    if (typeof I18N !== 'undefined' && I18N[lang]) {
+      yearChart.data.datasets[0].label = I18N[lang].income || 'Income';
+      yearChart.data.datasets[1].label = I18N[lang].expense || 'Expense';
+      yearChart.update();
+    }
+  };
+
+  /* ================================================================
+     INITIAL LANGUAGE
+     ================================================================ */
+
+  const yearlyLang = localStorage.getItem('financeTrackerLanguage') || 'en';
+  if (typeof window.refreshChartsLanguage === 'function') {
+    setTimeout(function() {
+      window.refreshChartsLanguage(yearlyLang);
+    }, 50);
+  }
+</script>
+{% endblock %}

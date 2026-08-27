@@ -1,18 +1,335 @@
-{% extends "tracker/base.html" %}{% block title %}Add Transaction{% endblock %}
-{% block content %}<div class="top"><div><h1 data-i18n="add_title">Add Transaction</h1><div class="muted" data-i18n="no_hidden_fee">The amount you enter is recorded exactly. No automatic fee or 0.03 is deducted.</div></div></div>
-<div class="card form-card"><form method="post">{% csrf_token %}
-<div class="field"><label data-i18n="transaction_type">Transaction Type</label><select id="txn_type" name="txn_type" required><option value="expense" data-i18n="expense">Expense</option><option value="income" data-i18n="income">Income</option></select></div>
-<div class="field"><label id="categoryLabel" data-i18n="expense_category_label">Expense Category</label><select id="category" name="category" required></select></div>
-<div class="field"><label id="methodLabel" data-i18n="payment_method">Payment Method</label><select id="payment_method" name="payment_method" required>{% for pm in payment_methods %}<option value="{{pm.id}}" data-method-type="{{pm.method_type}}" data-method-name="{{pm.name|escapejs}}">{{pm.name}} — {{pm.get_method_type_display}}</option>{% endfor %}</select></div>
-<div class="field" id="otherSourceField" style="display:none"><label data-i18n="other_source">Where did it come from?</label><input id="other_source" name="other_source" maxlength="200" placeholder="e.g. Friend / Gift / Other source"></div>
-<div class="field"><label data-i18n="amount">Amount</label><input name="amount" type="number" min="0.01" step="0.01" placeholder="1000.00" required></div>
-<div class="field"><label data-i18n="date">Date</label><input name="date" type="date" value="{% now 'Y-m-d' %}" required></div>
-<div class="field"><label data-i18n="description_optional">Description (optional)</label><textarea name="note" placeholder="e.g. House rent / Received from home / Internet bill"></textarea></div>
-<button class="btn primary" style="width:100%" data-i18n="save">Save Transaction</button></form></div>
+{% extends "tracker/base.html" %}
+
+{% block title %}Add Transaction{% endblock %}
+
+{% block content %}
+<style>
+  /* ============================================================
+     ADD TRANSACTION – refined UI with new color scheme
+     ============================================================ */
+
+  .add-page {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .add-top {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 24px;
+  }
+
+  .add-top h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .add-top .muted {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  /* ============================================================
+     FORM CARD
+     ============================================================ */
+
+  .form-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 30px;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .form-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 18px var(--shadow);
+  }
+
+  .form-card .field {
+    margin-bottom: 18px;
+  }
+
+  .form-card .field:last-of-type {
+    margin-bottom: 22px;
+  }
+
+  .form-card label {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  .form-card input,
+  .form-card select,
+  .form-card textarea {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font: inherit;
+    font-size: 14px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .form-card input:focus,
+  .form-card select:focus,
+  .form-card textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.12);
+  }
+  [data-theme="dark"] .form-card input:focus,
+  [data-theme="dark"] .form-card select:focus,
+  [data-theme="dark"] .form-card textarea:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
+  }
+
+  .form-card textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+
+  /* ============================================================
+     SUBMIT BUTTON
+     ============================================================ */
+
+  .btn-submit {
+    width: 100%;
+    min-height: 50px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 40px;
+    background: var(--accent);
+    color: #fff;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 2px 10px rgba(30, 64, 175, 0.20);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  [data-theme="dark"] .btn-submit {
+    box-shadow: 0 2px 12px rgba(59, 130, 246, 0.25);
+  }
+
+  .btn-submit:hover {
+    background: var(--accent-light);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 18px rgba(30, 64, 175, 0.30);
+  }
+  [data-theme="dark"] .btn-submit:hover {
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.35);
+  }
+
+  .btn-submit:active {
+    transform: scale(0.98);
+  }
+
+  /* ============================================================
+     OTHER SOURCE FIELD (dynamic)
+     ============================================================ */
+
+  #otherSourceField {
+    animation: fadeSlideIn 0.25s ease;
+  }
+
+  @keyframes fadeSlideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* ============================================================
+     RESPONSIVE
+     ============================================================ */
+
+  @media (max-width: 600px) {
+    .add-top h1 {
+      font-size: 24px;
+    }
+
+    .form-card {
+      padding: 20px 18px;
+      border-radius: 14px;
+    }
+
+    .form-card input,
+    .form-card select,
+    .form-card textarea {
+      padding: 11px 14px;
+      font-size: 13px;
+    }
+
+    .btn-submit {
+      min-height: 46px;
+      font-size: 15px;
+    }
+  }
+
+  @media (max-width: 380px) {
+    .form-card {
+      padding: 16px 14px;
+    }
+
+    .add-top h1 {
+      font-size: 21px;
+    }
+  }
+</style>
+
+<div class="add-page">
+  <!-- HEADER -->
+  <div class="add-top">
+    <h1 data-i18n="add_title">Add Transaction</h1>
+    <div class="muted" data-i18n="no_hidden_fee">
+      The amount you enter is recorded exactly. No automatic fee or 0.03 is deducted.
+    </div>
+  </div>
+
+  <!-- FORM -->
+  <div class="card form-card">
+    <form method="post">
+      {% csrf_token %}
+
+      <!-- Transaction Type -->
+      <div class="field">
+        <label data-i18n="transaction_type">Transaction Type</label>
+        <select id="txn_type" name="txn_type" required>
+          <option value="expense" data-i18n="expense">Expense</option>
+          <option value="income" data-i18n="income">Income</option>
+        </select>
+      </div>
+
+      <!-- Category -->
+      <div class="field">
+        <label id="categoryLabel" data-i18n="expense_category_label">Expense Category</label>
+        <select id="category" name="category" required></select>
+      </div>
+
+      <!-- Payment Method -->
+      <div class="field">
+        <label id="methodLabel" data-i18n="payment_method">Payment Method</label>
+        <select id="payment_method" name="payment_method" required>
+          {% for pm in payment_methods %}
+            <option value="{{pm.id}}" data-method-type="{{pm.method_type}}" data-method-name="{{pm.name|escapejs}}">
+              {{pm.name}} — {{pm.get_method_type_display}}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Other Source (dynamic) -->
+      <div class="field" id="otherSourceField" style="display:none">
+        <label data-i18n="other_source">Where did it come from?</label>
+        <input id="other_source" name="other_source" maxlength="200" placeholder="e.g. Friend / Gift / Other source">
+      </div>
+
+      <!-- Amount -->
+      <div class="field">
+        <label data-i18n="amount">Amount</label>
+        <input name="amount" type="number" min="0.01" step="0.01" placeholder="1000.00" required>
+      </div>
+
+      <!-- Date -->
+      <div class="field">
+        <label data-i18n="date">Date</label>
+        <input name="date" type="date" value="{% now 'Y-m-d' %}" required>
+      </div>
+
+      <!-- Description -->
+      <div class="field">
+        <label data-i18n="description_optional">Description (optional)</label>
+        <textarea name="note" placeholder="e.g. House rent / Received from home / Internet bill"></textarea>
+      </div>
+
+      <!-- Submit -->
+      <button class="btn-submit" data-i18n="save">
+        <span>✓</span>
+        Save Transaction
+      </button>
+    </form>
+  </div>
+</div>
+
 <script>
-const incomeCats=[{% for c in income_categories %}{id:{{c.id}},nameEn:"{{c.icon|escapejs}} {{c.name|escapejs}}",nameBn:"{{c.icon|escapejs}} {{c.name_bn|default:c.name|escapejs}}"},{% endfor %}],expenseCats=[{% for c in expense_categories %}{id:{{c.id}},nameEn:"{{c.icon|escapejs}} {{c.name|escapejs}}",nameBn:"{{c.icon|escapejs}} {{c.name_bn|default:c.name|escapejs}}"},{% endfor %}];
-function currentLang(){return localStorage.getItem('financeTrackerLanguage')||'en'}
-function renderCats(){const income=document.getElementById('txn_type').value==='income',cats=income?incomeCats:expenseCats,sel=document.getElementById('category'),lang=currentLang();sel.innerHTML='';cats.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=lang==='bn'?c.nameBn:c.nameEn;sel.appendChild(o)});document.getElementById('categoryLabel').textContent=I18N[lang][income?'income_source_label':'expense_category_label'];document.getElementById('methodLabel').textContent=I18N[lang][income?'received_method':'payment_method'];toggleOtherSource()}
-function toggleOtherSource(){const income=document.getElementById('txn_type').value==='income',opt=document.querySelector('#payment_method option:checked'),show=income&&opt&&opt.dataset.methodType==='other';document.getElementById('otherSourceField').style.display=show?'block':'none'}
-document.getElementById('txn_type').addEventListener('change',renderCats);document.getElementById('payment_method').addEventListener('change',toggleOtherSource);renderCats();const oldApply=applyLanguage;applyLanguage=function(l){oldApply(l);renderCats()};
-</script>{% endblock %}
+  /* ================================================================
+     ADD TRANSACTION LOGIC – unchanged, only UI improved
+     ================================================================ */
+
+  const incomeCats = [
+    {% for c in income_categories %}
+      {id: {{c.id}}, nameEn: "{{c.icon|escapejs}} {{c.name|escapejs}}", nameBn: "{{c.icon|escapejs}} {{c.name_bn|default:c.name|escapejs}}"},
+    {% endfor %}
+  ];
+
+  const expenseCats = [
+    {% for c in expense_categories %}
+      {id: {{c.id}}, nameEn: "{{c.icon|escapejs}} {{c.name|escapejs}}", nameBn: "{{c.icon|escapejs}} {{c.name_bn|default:c.name|escapejs}}"},
+    {% endfor %}
+  ];
+
+  function currentLang() {
+    return localStorage.getItem('financeTrackerLanguage') || 'en';
+  }
+
+  function renderCats() {
+    const isIncome = document.getElementById('txn_type').value === 'income';
+    const cats = isIncome ? incomeCats : expenseCats;
+    const sel = document.getElementById('category');
+    const lang = currentLang();
+
+    sel.innerHTML = '';
+    cats.forEach(c => {
+      const o = document.createElement('option');
+      o.value = c.id;
+      o.textContent = lang === 'bn' ? c.nameBn : c.nameEn;
+      sel.appendChild(o);
+    });
+
+    document.getElementById('categoryLabel').textContent =
+      I18N[lang][isIncome ? 'income_source_label' : 'expense_category_label'];
+
+    document.getElementById('methodLabel').textContent =
+      I18N[lang][isIncome ? 'received_method' : 'payment_method'];
+
+    toggleOtherSource();
+  }
+
+  function toggleOtherSource() {
+    const isIncome = document.getElementById('txn_type').value === 'income';
+    const opt = document.querySelector('#payment_method option:checked');
+    const show = isIncome && opt && opt.dataset.methodType === 'other';
+    document.getElementById('otherSourceField').style.display = show ? 'block' : 'none';
+  }
+
+  document.getElementById('txn_type').addEventListener('change', renderCats);
+  document.getElementById('payment_method').addEventListener('change', toggleOtherSource);
+
+  renderCats();
+
+  const oldApply = applyLanguage;
+  applyLanguage = function(l) {
+    oldApply(l);
+    renderCats();
+  };
+</script>
+{% endblock %}

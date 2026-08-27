@@ -1,6 +1,273 @@
-{% extends "tracker/base.html" %}{% block title %}Transfer Money{% endblock %}{% block content %}<div class="top"><div><h1 data-i18n="transfer_title">Move Money Between Accounts</h1><div class="muted" data-i18n="transfer_note">Transfers are not income or expense. The exact amount is moved between accounts.</div></div></div><div class="card form-card"><form method="post">{% csrf_token %}
-<div class="field"><label data-i18n="from">From</label><select name="from_method" required>{% for pm in payment_methods %}<option value="{{pm.id}}">{{pm.name}} — ৳ {{pm.current_balance|floatformat:2}}</option>{% endfor %}</select></div>
-<div class="field"><label data-i18n="to">To</label><select name="to_method" required>{% for pm in payment_methods %}<option value="{{pm.id}}">{{pm.name}}</option>{% endfor %}</select></div>
-<div class="field"><label data-i18n="amount">Amount</label><input name="amount" type="number" min="0.01" step="0.01" required></div>
-<div class="field"><label data-i18n="date">Date</label><input name="date" type="date" value="{% now 'Y-m-d' %}" required></div>
-<div class="field"><label data-i18n="description">Description</label><textarea name="note"></textarea></div><button class="btn primary" style="width:100%" data-i18n="save_transfer">Save Transfer</button></form></div>{% endblock %}
+{% extends "tracker/base.html" %}
+
+{% block title %}Transfer Money{% endblock %}
+
+{% block content %}
+<style>
+  /* ============================================================
+     TRANSFER PAGE – refined UI with new color scheme
+     ============================================================ */
+
+  .transfer-page {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  /* ============================================================
+     HEADER
+     ============================================================ */
+
+  .transfer-top {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 24px;
+  }
+
+  .transfer-top h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .transfer-top .muted {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  /* ============================================================
+     FORM CARD
+     ============================================================ */
+
+  .form-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 30px;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .form-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 18px var(--shadow);
+  }
+
+  .form-card .field {
+    margin-bottom: 18px;
+  }
+
+  .form-card .field:last-of-type {
+    margin-bottom: 22px;
+  }
+
+  .form-card label {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  .form-card input,
+  .form-card select,
+  .form-card textarea {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font: inherit;
+    font-size: 14px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .form-card input:focus,
+  .form-card select:focus,
+  .form-card textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.10);
+  }
+  [data-theme="dark"] .form-card input:focus,
+  [data-theme="dark"] .form-card select:focus,
+  [data-theme="dark"] .form-card textarea:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  }
+
+  .form-card textarea {
+    min-height: 90px;
+    resize: vertical;
+  }
+
+  .form-card select option {
+    padding: 4px 8px;
+  }
+
+  /* ============================================================
+     TRANSFER ICON / SEPARATOR
+     ============================================================ */
+
+  .transfer-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    font-size: 24px;
+    padding: 4px 0;
+    opacity: 0.5;
+    user-select: none;
+  }
+
+  /* ============================================================
+     SUBMIT BUTTON
+     ============================================================ */
+
+  .btn-submit {
+    width: 100%;
+    min-height: 50px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 40px;
+    background: var(--accent);
+    color: #fff;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 2px 10px rgba(30, 64, 175, 0.20);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  [data-theme="dark"] .btn-submit {
+    box-shadow: 0 2px 12px rgba(59, 130, 246, 0.25);
+  }
+
+  .btn-submit:hover {
+    background: var(--accent-light);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 18px rgba(30, 64, 175, 0.30);
+  }
+  [data-theme="dark"] .btn-submit:hover {
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.35);
+  }
+
+  .btn-submit:active {
+    transform: scale(0.98);
+  }
+
+  /* ============================================================
+     RESPONSIVE
+     ============================================================ */
+
+  @media (max-width: 600px) {
+    .transfer-top h1 {
+      font-size: 24px;
+    }
+
+    .form-card {
+      padding: 20px 18px;
+      border-radius: 14px;
+    }
+
+    .form-card input,
+    .form-card select,
+    .form-card textarea {
+      padding: 11px 14px;
+      font-size: 13px;
+    }
+
+    .btn-submit {
+      min-height: 46px;
+      font-size: 15px;
+    }
+
+    .transfer-arrow {
+      font-size: 20px;
+      padding: 2px 0;
+    }
+  }
+
+  @media (max-width: 380px) {
+    .form-card {
+      padding: 16px 14px;
+    }
+
+    .transfer-top h1 {
+      font-size: 21px;
+    }
+  }
+</style>
+
+<div class="transfer-page">
+  <!-- HEADER -->
+  <div class="transfer-top">
+    <h1 data-i18n="transfer_title">Move Money Between Accounts</h1>
+    <div class="muted" data-i18n="transfer_note">
+      Transfers are not income or expense. The exact amount is moved between accounts.
+    </div>
+  </div>
+
+  <!-- FORM -->
+  <div class="card form-card">
+    <form method="post">
+      {% csrf_token %}
+
+      <!-- From -->
+      <div class="field">
+        <label data-i18n="from">From</label>
+        <select name="from_method" required>
+          {% for pm in payment_methods %}
+            <option value="{{ pm.id }}">
+              {{ pm.name }} — ৳ {{ pm.current_balance|floatformat:2 }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Arrow separator -->
+      <div class="transfer-arrow">⬇</div>
+
+      <!-- To -->
+      <div class="field">
+        <label data-i18n="to">To</label>
+        <select name="to_method" required>
+          {% for pm in payment_methods %}
+            <option value="{{ pm.id }}">{{ pm.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Amount -->
+      <div class="field">
+        <label data-i18n="amount">Amount</label>
+        <input name="amount" type="number" min="0.01" step="0.01" placeholder="1000.00" required>
+      </div>
+
+      <!-- Date -->
+      <div class="field">
+        <label data-i18n="date">Date</label>
+        <input name="date" type="date" value="{% now 'Y-m-d' %}" required>
+      </div>
+
+      <!-- Description -->
+      <div class="field">
+        <label data-i18n="description">Description</label>
+        <textarea name="note" placeholder="Optional note about this transfer"></textarea>
+      </div>
+
+      <!-- Submit -->
+      <button class="btn-submit" data-i18n="save_transfer">
+        <span>⇄</span>
+        Save Transfer
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

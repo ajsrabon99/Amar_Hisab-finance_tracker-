@@ -1,3 +1,451 @@
-{% extends "tracker/base.html" %}{% block title %}Transactions{% endblock %}{% block content %}<div class="top"><div><h1 data-i18n="transactions">Transactions</h1></div><div class="actions"><a class="btn" href="{% url 'tracker:export_csv' %}" data-i18n="export">Export CSV</a><a class="btn primary" href="{% url 'tracker:add_transaction' %}" data-i18n="add">+ Add</a></div></div>
-<form class="filter" method="get"><input name="q" value="{{q}}" placeholder="Search description or category" data-i18n-placeholder="search"><select name="type"><option value="" {% if not selected_type %}selected{% endif %} data-i18n="all">All</option><option value="income" {% if selected_type == 'income' %}selected{% endif %} data-i18n="income">Income</option><option value="expense" {% if selected_type == 'expense' %}selected{% endif %} data-i18n="expense">Expense</option></select><button class="btn primary" data-i18n="search">Search</button></form>
-<div class="card"><table><tr><th data-i18n="date">Date</th><th data-i18n="category">Category</th><th data-i18n="method">Account / Method</th><th data-i18n="amount">Amount</th><th data-i18n="description">Description</th><th></th></tr>{% for t in transactions %}<tr><td>{{t.date}}</td><td><span class="badge {{t.txn_type}}" data-i18n="{{t.txn_type}}">{{t.get_txn_type_display}}</span> <span data-category-en="{{t.category.name|escape}}" data-category-bn="{{t.category.name_bn|default:t.category.name|escape}}">{{t.category.name}}</span></td><td>{{t.payment_method.name}}</td><td class="{% if t.txn_type == 'income' %}income{% else %}expense{% endif %}">{% if t.txn_type == 'income' %}+{% else %}-{% endif %} ৳ {{t.amount|floatformat:2}}</td><td>{{t.note|default:'—'}}</td><td><form method="post" action="{% url 'tracker:delete_transaction' t.id %}">{% csrf_token %}<button class="btn danger" type="submit" onclick="return confirm('Delete this transaction?')" data-i18n="delete">Delete</button></form></td></tr>{% empty %}<tr><td colspan="6" data-i18n="no_data">No transactions yet</td></tr>{% endfor %}</table></div>{% endblock %}
+{% extends "tracker/base.html" %}
+
+{% block title %}Transactions{% endblock %}
+
+{% block content %}
+<style>
+  /* ============================================================
+     TRANSACTIONS PAGE – refined UI with new color scheme
+     ============================================================ */
+
+  .transactions-page {
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+
+  /* ============================================================
+     TOP HEADER
+     ============================================================ */
+
+  .transactions-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+  }
+
+  .transactions-top h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .transactions-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  /* ============================================================
+     BUTTONS
+     ============================================================ */
+
+  .btn-trans {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 10px 18px;
+    border-radius: 40px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--text);
+    text-decoration: none;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .btn-trans:hover {
+    background: var(--panel2);
+    border-color: var(--accent);
+  }
+
+  .btn-trans:active {
+    transform: scale(0.97);
+  }
+
+  .btn-trans.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(30, 64, 175, 0.20);
+  }
+  [data-theme="dark"] .btn-trans.primary {
+    box-shadow: 0 2px 10px rgba(59, 130, 246, 0.25);
+  }
+
+  .btn-trans.primary:hover {
+    background: var(--accent-light);
+    border-color: var(--accent-light);
+    opacity: 0.95;
+  }
+
+  .btn-trans.danger {
+    color: var(--danger);
+    border-color: transparent;
+    background: transparent;
+    padding: 6px 12px;
+    min-height: 34px;
+    font-size: 12px;
+  }
+
+  .btn-trans.danger:hover {
+    background: rgba(239, 68, 68, 0.10);
+    border-color: var(--danger);
+  }
+  [data-theme="dark"] .btn-trans.danger:hover {
+    background: rgba(248, 113, 113, 0.12);
+  }
+
+  /* ============================================================
+     FILTER BAR
+     ============================================================ */
+
+  .filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    margin-bottom: 22px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    flex-wrap: wrap;
+    transition: border-color 0.2s ease;
+  }
+
+  .filter-bar:hover {
+    border-color: var(--accent);
+  }
+
+  .filter-bar input,
+  .filter-bar select {
+    padding: 10px 16px;
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font: inherit;
+    font-size: 13px;
+    min-height: 42px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    flex: 1;
+    min-width: 150px;
+  }
+
+  .filter-bar input:focus,
+  .filter-bar select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.10);
+  }
+  [data-theme="dark"] .filter-bar input:focus,
+  [data-theme="dark"] .filter-bar select:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  }
+
+  .filter-bar .btn-trans {
+    min-height: 42px;
+    flex-shrink: 0;
+  }
+
+  /* ============================================================
+     TABLE CARD
+     ============================================================ */
+
+  .table-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .table-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 18px var(--shadow);
+  }
+
+  .table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 4px;
+  }
+
+  .trans-table {
+    width: 100%;
+    min-width: 780px;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .trans-table th {
+    padding: 14px 14px;
+    color: var(--muted);
+    background: var(--panel2);
+    font-size: 10px;
+    font-weight: 700;
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+
+  .trans-table td {
+    padding: 14px 14px;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  .trans-table tbody tr:last-child td {
+    border-bottom: 0;
+  }
+
+  .trans-table tbody tr:hover td {
+    background: var(--panel2);
+  }
+
+  .trans-table .amount-cell {
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .trans-table .amount-cell.income {
+    color: var(--success);
+  }
+
+  .trans-table .amount-cell.expense {
+    color: var(--danger);
+  }
+
+  .trans-table .desc-cell {
+    max-width: 200px;
+    color: var(--muted);
+    overflow-wrap: anywhere;
+  }
+
+  .trans-table .actions-cell {
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  /* ============================================================
+     BADGE
+     ============================================================ */
+
+  .badge-trans {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 22px;
+    padding: 3px 12px;
+    border-radius: 999px;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-right: 6px;
+    white-space: nowrap;
+  }
+
+  .badge-trans.income {
+    color: var(--success);
+    background: rgba(16, 185, 129, 0.10);
+    border: 1px solid rgba(16, 185, 129, 0.20);
+  }
+  [data-theme="dark"] .badge-trans.income {
+    background: rgba(52, 211, 153, 0.12);
+    border-color: rgba(52, 211, 153, 0.25);
+  }
+
+  .badge-trans.expense {
+    color: var(--danger);
+    background: rgba(239, 68, 68, 0.10);
+    border: 1px solid rgba(239, 68, 68, 0.20);
+  }
+  [data-theme="dark"] .badge-trans.expense {
+    background: rgba(248, 113, 113, 0.12);
+    border-color: rgba(248, 113, 113, 0.25);
+  }
+
+  /* ============================================================
+     EMPTY STATE
+     ============================================================ */
+
+  .empty-state {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .empty-state-icon {
+    font-size: 32px;
+    margin-bottom: 10px;
+    opacity: 0.6;
+  }
+
+  /* ============================================================
+     RESPONSIVE
+     ============================================================ */
+
+  @media (max-width: 700px) {
+    .transactions-top {
+      flex-direction: column;
+    }
+
+    .transactions-actions {
+      width: 100%;
+    }
+
+    .transactions-actions .btn-trans {
+      flex: 1;
+      justify-content: center;
+    }
+
+    .filter-bar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .filter-bar input,
+    .filter-bar select {
+      min-width: 0;
+      width: 100%;
+    }
+
+    .filter-bar .btn-trans {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .trans-table {
+      min-width: 650px;
+    }
+
+    .trans-table th,
+    .trans-table td {
+      padding: 10px 10px;
+    }
+  }
+
+  @media (max-width: 400px) {
+    .transactions-top h1 {
+      font-size: 24px;
+    }
+
+    .trans-table th,
+    .trans-table td {
+      padding: 8px 8px;
+      font-size: 12px;
+    }
+
+    .btn-trans {
+      font-size: 12px;
+      padding: 8px 14px;
+      min-height: 38px;
+    }
+  }
+</style>
+
+<div class="transactions-page">
+  <!-- HEADER -->
+  <div class="transactions-top">
+    <h1 data-i18n="transactions">Transactions</h1>
+
+    <div class="transactions-actions">
+      <a class="btn-trans" href="{% url 'tracker:export_csv' %}" data-i18n="export">
+        <span>⬇</span> Export CSV
+      </a>
+      <a class="btn-trans primary" href="{% url 'tracker:add_transaction' %}" data-i18n="add">
+        <span>＋</span> Add
+      </a>
+    </div>
+  </div>
+
+  <!-- FILTER -->
+  <form class="filter-bar" method="get">
+    <input name="q" value="{{q}}" placeholder="Search description or category" data-i18n-placeholder="search">
+
+    <select name="type">
+      <option value="" {% if not selected_type %}selected{% endif %} data-i18n="all">All</option>
+      <option value="income" {% if selected_type == 'income' %}selected{% endif %} data-i18n="income">Income</option>
+      <option value="expense" {% if selected_type == 'expense' %}selected{% endif %} data-i18n="expense">Expense</option>
+    </select>
+
+    <button class="btn-trans primary" data-i18n="search">
+      <span></span> Search
+    </button>
+  </form>
+
+  <!-- TABLE -->
+  <div class="table-card">
+    <div class="table-wrap">
+      <table class="trans-table">
+        <thead>
+          <tr>
+            <th data-i18n="date">Date</th>
+            <th data-i18n="category">Category</th>
+            <th data-i18n="method">Account / Method</th>
+            <th data-i18n="amount">Amount</th>
+            <th data-i18n="description">Description</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in transactions %}
+            <tr>
+              <td>{{ t.date }}</td>
+
+              <td>
+                <span class="badge-trans {{ t.txn_type }}" data-i18n="{{ t.txn_type }}">
+                  {{ t.get_txn_type_display }}
+                </span>
+                <span data-category-en="{{ t.category.name|escape }}" data-category-bn="{{ t.category.name_bn|default:t.category.name|escape }}">
+                  {{ t.category.name }}
+                </span>
+              </td>
+
+              <td>{{ t.payment_method.name }}</td>
+
+              <td class="amount-cell {{ t.txn_type }}">
+                {% if t.txn_type == 'income' %}+{% else %}-{% endif %}
+                ৳ {{ t.amount|floatformat:2 }}
+              </td>
+
+              <td class="desc-cell">{{ t.note|default:'—' }}</td>
+
+              <td class="actions-cell">
+                <form method="post" action="{% url 'tracker:delete_transaction' t.id %}" style="display:inline;">
+                  {% csrf_token %}
+                  <button class="btn-trans danger" type="submit" onclick="return confirm('Delete this transaction?')" data-i18n="delete">
+                    ✕
+                  </button>
+                </form>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="6">
+                <div class="empty-state">
+                  <div class="empty-state-icon">📭</div>
+                  <span data-i18n="no_data">No transactions yet</span>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

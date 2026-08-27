@@ -629,6 +629,17 @@ class Profile(models.Model):
         default="",
     )
 
+    phone = models.CharField(
+        max_length=30,
+        blank=True,
+        default="",
+    )
+
+    address = models.TextField(
+        blank=True,
+        default="",
+    )
+
     photo = models.ImageField(
         upload_to="profile_photos/",
         blank=True,

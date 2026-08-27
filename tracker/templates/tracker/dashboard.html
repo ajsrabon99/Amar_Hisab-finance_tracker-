@@ -1,26 +1,1661 @@
-{% extends "tracker/base.html" %}{% block title %}Dashboard — Amar Hishab{% endblock %}
-{% block content %}
-<div class="top"><div><h1><span data-i18n="greeting">Good to see you</span>, {{ request.user.first_name|default:request.user.email|truncatechars:25 }} 👋</h1><div class="muted"><span data-month="{{ month }}">{{ month_name }}</span> {{ year }} · <span data-i18n="month_summary">Monthly Summary</span></div></div>
-<div class="actions"><a class="btn primary" href="{% url 'tracker:add_transaction' %}" data-i18n="add">+ Add</a><a class="btn" href="{% url 'tracker:transfer_money' %}" data-i18n="transfer">Transfer</a></div></div>
-<form class="filter" method="get"><select name="month">{% for m,name in months_range %}<option value="{{m}}" {% if m == month %}selected{% endif %} data-month="{{m}}">{{name}}</option>{% endfor %}</select><select name="year">{% for y in years_range %}<option value="{{y}}" {% if y == year %}selected{% endif %}>{{y}}</option>{% endfor %}</select><button class="btn primary" type="submit" data-i18n="show">Show</button></form>
-<div class="grid cards">
-<div class="card"><div class="label" data-i18n="total_balance">Total Balance</div><div class="value balance">৳ {{ total_balance|floatformat:2 }}</div></div>
-<div class="card"><div class="label" data-i18n="monthly_income">Monthly Income</div><div class="value income">৳ {{ total_income|floatformat:2 }}</div></div>
-<div class="card"><div class="label" data-i18n="monthly_expense">Monthly Expense</div><div class="value expense">৳ {{ total_expense|floatformat:2 }}</div></div>
-<div class="card"><div class="label" data-i18n="saved">Saved This Month</div><div class="value">৳ {{ net|floatformat:2 }}</div></div>
-</div>
-<div class="section" data-i18n="accounts">Your Accounts</div><div class="grid cards">
-{% for pm in payment_methods %}<div class="card account-card"><div class="account-name">{{ pm.name }}</div><div class="account-type">{{ pm.get_method_type_display }}</div><div class="value">৳ {{ pm.current_balance|floatformat:2 }}</div></div>{% endfor %}
-</div>
-<div class="grid two" style="margin-top:20px"><div class="card"><div class="label" data-i18n="expense_category">Expense by Category</div><canvas id="catChart" height="230"></canvas></div><div class="card"><div class="label" data-i18n="expense_method">Expense by Payment Method</div><canvas id="methodChart" height="230"></canvas></div></div>
-<div class="grid two" style="margin-top:14px"><div class="card"><div class="label" data-i18n="income_source">Income Sources</div><table><tr><th data-i18n="category">Category</th><th data-i18n="amount">Amount</th></tr>{% for row in income_by_source %}<tr><td>{{row.category__icon}} <span data-category-en="{{row.category__name|escape}}" data-category-bn="{{row.category__name_bn|default:row.category__name|escape}}">{{row.category__name}}</span></td><td>৳ {{row.total|floatformat:2}}</td></tr>{% empty %}<tr><td colspan="2" data-i18n="no_data">No transactions yet</td></tr>{% endfor %}</table></div>
-<div class="card"><div class="label" data-i18n="received_via">Received via</div><table><tr><th data-i18n="method">Account / Method</th><th data-i18n="amount">Amount</th></tr>{% for row in income_by_method %}<tr><td>{{row.payment_method__name}}</td><td>৳ {{row.total|floatformat:2}}</td></tr>{% empty %}<tr><td colspan="2" data-i18n="no_data">No transactions yet</td></tr>{% endfor %}</table></div></div>
-<div class="section" data-i18n="recent">Recent Transactions</div><div class="card"><table><tr><th data-i18n="date">Date</th><th data-i18n="category">Category</th><th data-i18n="method">Account / Method</th><th data-i18n="amount">Amount</th><th data-i18n="description">Description</th></tr>{% for t in recent_transactions %}<tr><td>{{t.date}}</td><td><span class="badge {{t.txn_type}}" data-i18n="{{t.txn_type}}">{{t.get_txn_type_display}}</span> <span data-category-en="{{t.category.name|escape}}" data-category-bn="{{t.category.name_bn|default:t.category.name|escape}}">{{t.category.name}}</span></td><td>{{t.payment_method.name}}</td><td class="{% if t.txn_type == 'income' %}income{% else %}expense{% endif %}">{% if t.txn_type == 'income' %}+{% else %}-{% endif %} ৳ {{t.amount|floatformat:2}}</td><td>{{t.note|default:'—'}}</td></tr>{% empty %}<tr><td colspan="5" data-i18n="no_data">No transactions yet</td></tr>{% endfor %}</table></div>
-{% endblock %}
-{% block extra_js %}<script>
-const catLabelsEn=[{% for r in expense_by_category %}"{{r.category__icon|escapejs}} {{r.category__name|escapejs}}",{% endfor %}],catLabelsBn=[{% for r in expense_by_category %}"{{r.category__icon|escapejs}} {{r.category__name_bn|default:r.category__name|escapejs}}",{% endfor %}],catData=[{% for r in expense_by_category %}{{r.total}},{% endfor %}],methodLabels=[{% for r in expense_by_method %}"{{r.payment_method__name|escapejs}}",{% endfor %}],methodData=[{% for r in expense_by_method %}{{r.total}},{% endfor %}];
-const catChart=new Chart(document.getElementById('catChart'),{type:'doughnut',data:{labels:catLabelsEn,datasets:[{data:catData}]},options:{plugins:{legend:{position:'right',labels:{color:'#edf1f7'}}}}});
-const methodChart=new Chart(document.getElementById('methodChart'),{type:'bar',data:{labels:methodLabels,datasets:[{label:'Expense',data:methodData}]},options:{plugins:{legend:{labels:{color:'#edf1f7'}}},scales:{x:{ticks:{color:'#edf1f7'}},y:{ticks:{color:'#edf1f7'}}}}});
-window.refreshChartsLanguage=function(lang){catChart.data.labels=lang==='bn'?catLabelsBn:catLabelsEn;methodChart.data.datasets[0].label=I18N[lang].expense;catChart.update();methodChart.update()};
-</script> {% endblock %}
+{% extends "tracker/base.html" %}
 
+{% block title %}
+  Dashboard — Amar Hishab
+{% endblock %}
+
+{% block content %}
+
+<style>
+  /* ============================================================
+     DASHBOARD – refined UI with new color scheme
+     ============================================================ */
+
+  .dashboard-page {
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+
+  /* ============================================================
+     TOP HEADER
+     ============================================================ */
+
+  .dashboard-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+
+  .dashboard-heading h1 {
+    margin: 0;
+    color: var(--text);
+    font-size: clamp(26px, 3vw, 34px);
+    line-height: 1.2;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+  }
+
+  .dashboard-heading h1 .user-name {
+    color: var(--accent);
+  }
+
+  .dashboard-subtitle {
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .dashboard-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  /* ============================================================
+     BUTTONS
+     ============================================================ */
+
+  .dashboard-btn {
+    min-height: 42px;
+    padding: 10px 18px;
+    border-radius: 40px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--text);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .dashboard-btn:hover {
+    background: var(--panel2);
+    border-color: var(--accent);
+  }
+
+  .dashboard-btn:active {
+    transform: scale(0.97);
+  }
+
+  .dashboard-btn.primary {
+    color: #fff;
+    background: var(--accent);
+    border-color: var(--accent);
+    box-shadow: 0 2px 8px rgba(30, 64, 175, 0.20);
+  }
+  [data-theme="dark"] .dashboard-btn.primary {
+    box-shadow: 0 2px 10px rgba(59, 130, 246, 0.25);
+  }
+
+  .dashboard-btn.primary:hover {
+    background: var(--accent-light);
+    border-color: var(--accent-light);
+    opacity: 0.95;
+  }
+
+  /* ============================================================
+     MONTH FILTER
+     ============================================================ */
+
+  .dashboard-filter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    margin-bottom: 24px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: border-color 0.2s ease;
+  }
+
+  .dashboard-filter:hover {
+    border-color: var(--accent);
+  }
+
+  .dashboard-filter select {
+    min-width: 130px;
+    margin: 0;
+  }
+
+  .dashboard-filter .dashboard-btn {
+    min-width: 80px;
+  }
+
+  /* ============================================================
+     SUMMARY CARDS
+     ============================================================ */
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .summary-card {
+    position: relative;
+    overflow: hidden;
+    min-width: 0;
+    padding: 20px 22px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .summary-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+    box-shadow: 0 4px 18px var(--shadow);
+  }
+
+  .summary-card::after {
+    content: "";
+    position: absolute;
+    width: 90px;
+    height: 90px;
+    right: -35px;
+    bottom: -35px;
+    border-radius: 50%;
+    background: rgba(30, 64, 175, 0.06);
+    pointer-events: none;
+  }
+  [data-theme="dark"] .summary-card::after {
+    background: rgba(59, 130, 246, 0.08);
+  }
+
+  .summary-label {
+    margin-bottom: 8px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .summary-value {
+    color: var(--text);
+    font-size: 24px;
+    line-height: 1.2;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    word-break: break-word;
+  }
+
+  .summary-value.balance {
+    color: var(--accent);
+  }
+
+  .summary-value.income {
+    color: var(--success);
+  }
+
+  .summary-value.expense {
+    color: var(--danger);
+  }
+
+  /* ============================================================
+     SECTION
+     ============================================================ */
+
+  .dashboard-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 30px 0 14px;
+  }
+
+  .dashboard-section-title {
+    margin: 0;
+    color: var(--text);
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+
+  .dashboard-section-subtitle {
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  /* ============================================================
+     ACCOUNTS
+     ============================================================ */
+
+  .accounts-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .account-card {
+    min-width: 0;
+    padding: 18px 20px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .account-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+    box-shadow: 0 4px 18px var(--shadow);
+  }
+
+  .account-name {
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
+
+  .account-type {
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .account-balance {
+    margin-top: 16px;
+    color: var(--text);
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  /* ============================================================
+     CHART GRID
+     ============================================================ */
+
+  .charts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .chart-card {
+    min-width: 0;
+    padding: 20px 22px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .chart-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 18px var(--shadow);
+  }
+
+  .chart-title {
+    margin-bottom: 16px;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .chart-wrapper {
+    position: relative;
+    width: 100%;
+    height: 250px;
+  }
+
+  .chart-wrapper canvas {
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  /* ============================================================
+     DATA CARDS
+     ============================================================ */
+
+  .data-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .data-card {
+    min-width: 0;
+    overflow: hidden;
+    padding: 20px 22px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .data-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 18px var(--shadow);
+  }
+
+  .data-card-title {
+    margin-bottom: 14px;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .dashboard-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .dashboard-table {
+    width: 100%;
+    min-width: 320px;
+    border-collapse: collapse;
+  }
+
+  .dashboard-table th {
+    padding: 10px 8px;
+    color: var(--muted);
+    background: var(--panel2);
+    font-size: 10px;
+    font-weight: 700;
+    text-align: left;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .dashboard-table td {
+    padding: 11px 8px;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    vertical-align: middle;
+  }
+
+  .dashboard-table tbody tr:last-child td {
+    border-bottom: 0;
+  }
+
+  .dashboard-table td:last-child,
+  .dashboard-table th:last-child {
+    text-align: right;
+  }
+
+  .category-name {
+    overflow-wrap: anywhere;
+  }
+
+  /* ============================================================
+     RECENT TRANSACTIONS
+     ============================================================ */
+
+  .recent-card {
+    width: 100%;
+    overflow: hidden;
+    padding: 20px 22px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .recent-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 18px var(--shadow);
+  }
+
+  .recent-table {
+    width: 100%;
+    min-width: 700px;
+    border-collapse: collapse;
+  }
+
+  .recent-table th {
+    padding: 10px 12px;
+    color: var(--muted);
+    background: var(--panel2);
+    font-size: 10px;
+    font-weight: 700;
+    text-align: left;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .recent-table td {
+    padding: 12px 12px;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    vertical-align: middle;
+  }
+
+  .recent-table tbody tr:last-child td {
+    border-bottom: 0;
+  }
+
+  .recent-table .amount-cell {
+    white-space: nowrap;
+    font-weight: 700;
+    text-align: right;
+  }
+
+  .recent-table .description-cell {
+    max-width: 240px;
+    color: var(--muted);
+    overflow-wrap: anywhere;
+  }
+
+  .transaction-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 22px;
+    margin-right: 6px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 9px;
+    font-weight: 700;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .transaction-badge.income {
+    color: var(--success);
+    background: rgba(16, 185, 129, 0.10);
+    border: 1px solid rgba(16, 185, 129, 0.20);
+  }
+  [data-theme="dark"] .transaction-badge.income {
+    background: rgba(52, 211, 153, 0.12);
+    border-color: rgba(52, 211, 153, 0.25);
+  }
+
+  .transaction-badge.expense {
+    color: var(--danger);
+    background: rgba(239, 68, 68, 0.10);
+    border: 1px solid rgba(239, 68, 68, 0.20);
+  }
+  [data-theme="dark"] .transaction-badge.expense {
+    background: rgba(248, 113, 113, 0.12);
+    border-color: rgba(248, 113, 113, 0.25);
+  }
+
+  .positive {
+    color: var(--success) !important;
+  }
+
+  .negative {
+    color: var(--danger) !important;
+  }
+
+  /* ============================================================
+     EMPTY STATE
+     ============================================================ */
+
+  .dashboard-empty {
+    padding: 30px 15px;
+    color: var(--muted);
+    text-align: center;
+    font-size: 12px;
+  }
+
+  .dashboard-empty-icon {
+    margin-bottom: 8px;
+    font-size: 28px;
+    opacity: 0.7;
+  }
+
+  /* ============================================================
+     RESPONSIVE
+     ============================================================ */
+
+  @media (max-width: 1050px) {
+    .summary-grid,
+    .accounts-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 800px) {
+    .dashboard-top {
+      flex-direction: column;
+    }
+
+    .dashboard-actions {
+      width: 100%;
+    }
+
+    .dashboard-actions .dashboard-btn {
+      flex: 1;
+    }
+
+    .charts-grid,
+    .data-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .dashboard-top {
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .dashboard-heading h1 {
+      font-size: 24px;
+    }
+
+    .dashboard-subtitle {
+      font-size: 12px;
+    }
+
+    .dashboard-filter {
+      flex-wrap: wrap;
+      padding: 12px 14px;
+    }
+
+    .dashboard-filter select {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .dashboard-filter .dashboard-btn {
+      width: 100%;
+    }
+
+    .summary-grid,
+    .accounts-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .summary-card,
+    .account-card,
+    .chart-card,
+    .data-card,
+    .recent-card {
+      padding: 15px 16px;
+      border-radius: 14px;
+    }
+
+    .summary-value {
+      font-size: 18px;
+    }
+
+    .account-balance {
+      font-size: 17px;
+      margin-top: 12px;
+    }
+
+    .chart-wrapper {
+      height: 220px;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .summary-grid,
+    .accounts-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .dashboard-actions {
+      flex-direction: column;
+    }
+
+    .dashboard-actions .dashboard-btn {
+      width: 100%;
+    }
+
+    .dashboard-filter {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .dashboard-filter .dashboard-btn {
+      grid-column: 1 / -1;
+    }
+
+    .chart-wrapper {
+      height: 200px;
+    }
+  }
+</style>
+
+
+<div class="dashboard-page">
+
+  <!-- ==========================================================
+       HEADER
+       ========================================================== -->
+
+  <div class="dashboard-top">
+
+    <div class="dashboard-heading">
+
+      <h1>
+        <span data-i18n="greeting">Good to see you</span>,
+
+        <span class="user-name">
+          {% if request.user.profile.name %}
+            {{ request.user.profile.name|truncatechars:25 }}
+          {% elif request.user.first_name %}
+            {{ request.user.first_name|truncatechars:25 }}
+          {% else %}
+            {{ request.user.email|truncatechars:25 }}
+          {% endif %}
+        </span>
+
+        👋
+      </h1>
+
+      <div class="dashboard-subtitle">
+        <span data-month="{{ month }}">{{ month_name }}</span>
+        {{ year }}
+        ·
+        <span data-i18n="month_summary">Monthly Summary</span>
+      </div>
+
+    </div>
+
+
+    <div class="dashboard-actions">
+
+      <a
+        class="dashboard-btn primary"
+        href="{% url 'tracker:add_transaction' %}"
+      >
+        <span>＋</span>
+        <span data-i18n="add">Add</span>
+      </a>
+
+      <a
+        class="dashboard-btn"
+        href="{% url 'tracker:transfer_money' %}"
+      >
+        <span>⇄</span>
+        <span data-i18n="transfer">Transfer</span>
+      </a>
+
+    </div>
+
+  </div>
+
+
+  <!-- ==========================================================
+       MONTH FILTER
+       ========================================================== -->
+
+  <form class="dashboard-filter" method="get">
+
+    <select name="month">
+      {% for m, name in months_range %}
+        <option
+          value="{{ m }}"
+          {% if m == month %}selected{% endif %}
+          data-month="{{ m }}"
+        >
+          {{ name }}
+        </option>
+      {% endfor %}
+    </select>
+
+
+    <select name="year">
+
+      {% for y in years_range %}
+        <option
+          value="{{ y }}"
+          {% if y == year %}selected{% endif %}
+        >
+          {{ y }}
+        </option>
+      {% endfor %}
+
+    </select>
+
+
+    <button
+      class="dashboard-btn primary"
+      type="submit"
+    >
+      <span>↻</span>
+      <span data-i18n="show">Show</span>
+    </button>
+
+  </form>
+
+
+  <!-- ==========================================================
+       SUMMARY CARDS
+       ========================================================== -->
+
+  <div class="summary-grid">
+
+    <div class="summary-card">
+      <div
+        class="summary-label"
+        data-i18n="total_balance"
+      >
+        Total Balance
+      </div>
+
+      <div class="summary-value balance">
+        ৳ {{ total_balance|floatformat:2 }}
+      </div>
+    </div>
+
+
+    <div class="summary-card">
+      <div
+        class="summary-label"
+        data-i18n="monthly_income"
+      >
+        Monthly Income
+      </div>
+
+      <div class="summary-value income">
+        ৳ {{ total_income|floatformat:2 }}
+      </div>
+    </div>
+
+
+    <div class="summary-card">
+      <div
+        class="summary-label"
+        data-i18n="monthly_expense"
+      >
+        Monthly Expense
+      </div>
+
+      <div class="summary-value expense">
+        ৳ {{ total_expense|floatformat:2 }}
+      </div>
+    </div>
+
+
+    <div class="summary-card">
+      <div
+        class="summary-label"
+        data-i18n="saved"
+      >
+        Saved This Month
+      </div>
+
+      <div class="summary-value">
+        ৳ {{ net|floatformat:2 }}
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- ==========================================================
+       ACCOUNTS
+       ========================================================== -->
+
+  <div class="dashboard-section">
+
+    <h2
+      class="dashboard-section-title"
+      data-i18n="accounts"
+    >
+      Your Accounts
+    </h2>
+
+  </div>
+
+
+  <div class="accounts-grid">
+
+    {% for pm in payment_methods %}
+
+      <div class="account-card">
+
+        <div class="account-name">
+          {{ pm.name }}
+        </div>
+
+        <div class="account-type">
+          {{ pm.get_method_type_display }}
+        </div>
+
+        <div class="account-balance">
+          ৳ {{ pm.current_balance|floatformat:2 }}
+        </div>
+
+      </div>
+
+    {% empty %}
+
+      <div class="dashboard-empty">
+        <div class="dashboard-empty-icon">💳</div>
+        <span data-i18n="no_accounts">
+          No accounts available
+        </span>
+      </div>
+
+    {% endfor %}
+
+  </div>
+
+
+  <!-- ==========================================================
+       CHARTS
+       ========================================================== -->
+
+  <div class="dashboard-section">
+
+    <h2
+      class="dashboard-section-title"
+      data-i18n="analytics"
+    >
+      Analytics
+    </h2>
+
+  </div>
+
+
+  <div class="charts-grid">
+
+    <!-- Expense Category -->
+
+    <div class="chart-card">
+
+      <div
+        class="chart-title"
+        data-i18n="expense_category"
+      >
+        Expense by Category
+      </div>
+
+      <div class="chart-wrapper">
+
+        <canvas id="catChart"></canvas>
+
+      </div>
+
+    </div>
+
+
+    <!-- Expense Method -->
+
+    <div class="chart-card">
+
+      <div
+        class="chart-title"
+        data-i18n="expense_method"
+      >
+        Expense by Payment Method
+      </div>
+
+      <div class="chart-wrapper">
+
+        <canvas id="methodChart"></canvas>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ==========================================================
+       INCOME INFORMATION
+       ========================================================== -->
+
+  <div class="dashboard-section">
+
+    <h2
+      class="dashboard-section-title"
+      data-i18n="income_overview"
+    >
+      Income Overview
+    </h2>
+
+  </div>
+
+
+  <div class="data-grid">
+
+    <!-- Income Sources -->
+
+    <div class="data-card">
+
+      <div
+        class="data-card-title"
+        data-i18n="income_source"
+      >
+        Income Sources
+      </div>
+
+      <div class="dashboard-table-wrap">
+
+        <table class="dashboard-table">
+
+          <thead>
+
+            <tr>
+
+              <th data-i18n="category">
+                Category
+              </th>
+
+              <th data-i18n="amount">
+                Amount
+              </th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody>
+
+            {% for row in income_by_source %}
+
+              <tr>
+
+                <td class="category-name">
+
+                  {{ row.category__icon }}
+
+                  <span
+                    data-category-en="{{ row.category__name|escape }}"
+                    data-category-bn="{{ row.category__name_bn|default:row.category__name|escape }}"
+                  >
+                    {{ row.category__name }}
+                  </span>
+
+                </td>
+
+                <td class="positive">
+                  ৳ {{ row.total|floatformat:2 }}
+                </td>
+
+              </tr>
+
+            {% empty %}
+
+              <tr>
+
+                <td
+                  colspan="2"
+                  class="dashboard-empty"
+                  data-i18n="no_data"
+                >
+                  No transactions yet
+                </td>
+
+              </tr>
+
+            {% endfor %}
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+
+    <!-- Received Via -->
+
+    <div class="data-card">
+
+      <div
+        class="data-card-title"
+        data-i18n="received_via"
+      >
+        Received via
+      </div>
+
+      <div class="dashboard-table-wrap">
+
+        <table class="dashboard-table">
+
+          <thead>
+
+            <tr>
+
+              <th data-i18n="method">
+                Account / Method
+              </th>
+
+              <th data-i18n="amount">
+                Amount
+              </th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody>
+
+            {% for row in income_by_method %}
+
+              <tr>
+
+                <td>
+                  {{ row.payment_method__name }}
+                </td>
+
+                <td class="positive">
+                  ৳ {{ row.total|floatformat:2 }}
+                </td>
+
+              </tr>
+
+            {% empty %}
+
+              <tr>
+
+                <td
+                  colspan="2"
+                  class="dashboard-empty"
+                  data-i18n="no_data"
+                >
+                  No transactions yet
+                </td>
+
+              </tr>
+
+            {% endfor %}
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ==========================================================
+       RECENT TRANSACTIONS
+       ========================================================== -->
+
+  <div class="dashboard-section">
+
+    <h2
+      class="dashboard-section-title"
+      data-i18n="recent"
+    >
+      Recent Transactions
+    </h2>
+
+  </div>
+
+
+  <div class="recent-card">
+
+    <div class="dashboard-table-wrap">
+
+      <table class="recent-table">
+
+        <thead>
+
+          <tr>
+
+            <th data-i18n="date">
+              Date
+            </th>
+
+            <th data-i18n="category">
+              Category
+            </th>
+
+            <th data-i18n="method">
+              Account / Method
+            </th>
+
+            <th data-i18n="amount">
+              Amount
+            </th>
+
+            <th data-i18n="description">
+              Description
+            </th>
+
+          </tr>
+
+        </thead>
+
+
+        <tbody>
+
+          {% for t in recent_transactions %}
+
+            <tr>
+
+              <!-- Date -->
+
+              <td>
+                {{ t.date }}
+              </td>
+
+
+              <!-- Category -->
+
+              <td>
+
+                <span
+                  class="transaction-badge {{ t.txn_type }}"
+                  data-i18n="{{ t.txn_type }}"
+                >
+                  {{ t.get_txn_type_display }}
+                </span>
+
+                <span
+                  class="category-name"
+                  data-category-en="{{ t.category.name|escape }}"
+                  data-category-bn="{{ t.category.name_bn|default:t.category.name|escape }}"
+                >
+                  {{ t.category.name }}
+                </span>
+
+              </td>
+
+
+              <!-- Payment Method -->
+
+              <td>
+                {{ t.payment_method.name }}
+              </td>
+
+
+              <!-- Amount -->
+
+              <td
+                class="amount-cell
+                {% if t.txn_type == 'income' %}
+                  positive
+                {% else %}
+                  negative
+                {% endif %}"
+              >
+
+                {% if t.txn_type == 'income' %}
+                  +
+                {% else %}
+                  -
+                {% endif %}
+
+                ৳ {{ t.amount|floatformat:2 }}
+
+              </td>
+
+
+              <!-- Description -->
+
+              <td class="description-cell">
+
+                {{ t.note|default:"—" }}
+
+              </td>
+
+            </tr>
+
+
+          {% empty %}
+
+            <tr>
+
+              <td
+                colspan="5"
+                class="dashboard-empty"
+              >
+
+                <div class="dashboard-empty-icon">
+                  📊
+                </div>
+
+                <span data-i18n="no_data">
+                  No transactions yet
+                </span>
+
+              </td>
+
+            </tr>
+
+          {% endfor %}
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script>
+  /*
+   * ============================================================
+   * DASHBOARD CHARTS
+   * ============================================================
+   */
+
+  const catLabelsEn = [
+    {% for r in expense_by_category %}
+      "{{ r.category__icon|escapejs }} {{ r.category__name|escapejs }}",
+    {% endfor %}
+  ];
+
+  const catLabelsBn = [
+    {% for r in expense_by_category %}
+      "{{ r.category__icon|escapejs }} {{ r.category__name_bn|default:r.category__name|escapejs }}",
+    {% endfor %}
+  ];
+
+  const catData = [
+    {% for r in expense_by_category %}
+      {{ r.total }},
+    {% endfor %}
+  ];
+
+
+  const methodLabels = [
+    {% for r in expense_by_method %}
+      "{{ r.payment_method__name|escapejs }}",
+    {% endfor %}
+  ];
+
+  const methodData = [
+    {% for r in expense_by_method %}
+      {{ r.total }},
+    {% endfor %}
+  ];
+
+
+  /*
+   * ============================================================
+   * CHART DEFAULTS – dynamic colors based on theme
+   * ============================================================
+   */
+
+  function getChartColors() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
+      (document.documentElement.getAttribute('data-theme') === 'system' &&
+       window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+    return {
+      text: isDark ? '#F9FAFB' : '#1F2937',
+      muted: isDark ? '#9CA3AF' : '#6B7280',
+      border: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
+      grid: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
+    };
+  }
+
+
+  /*
+   * ============================================================
+   * EXPENSE CATEGORY CHART
+   * ============================================================
+   */
+
+  const catCanvas = document.getElementById('catChart');
+
+  let catChart = null;
+
+  if (catCanvas) {
+
+    catChart = new Chart(catCanvas, {
+
+      type: 'doughnut',
+
+      data: {
+
+        labels: catLabelsEn,
+
+        datasets: [
+
+          {
+            data: catData,
+
+            borderWidth: 2,
+
+            borderColor: 'rgba(0,0,0,0)',
+
+            hoverOffset: 6
+          }
+
+        ]
+
+      },
+
+      options: {
+
+        responsive: true,
+
+        maintainAspectRatio: false,
+
+        cutout: '62%',
+
+        plugins: {
+
+          legend: {
+
+            position: 'right',
+
+            labels: {
+
+              color: getChartColors().text,
+
+              padding: 14,
+
+              usePointStyle: true,
+
+              pointStyle: 'circle',
+
+              font: {
+                size: 10,
+                weight: '600'
+              }
+
+            }
+
+          },
+
+          tooltip: {
+
+            callbacks: {
+
+              label: function(context) {
+
+                const value = context.raw || 0;
+
+                return ' ৳ ' + Number(value).toLocaleString(
+                  'en-BD',
+                  {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                  }
+                );
+
+              }
+
+            }
+
+          }
+
+        }
+
+      }
+
+    });
+
+  }
+
+
+  /*
+   * ============================================================
+   * PAYMENT METHOD CHART
+   * ============================================================
+   */
+
+  const methodCanvas = document.getElementById('methodChart');
+
+  let methodChart = null;
+
+  if (methodCanvas) {
+
+    methodChart = new Chart(methodCanvas, {
+
+      type: 'bar',
+
+      data: {
+
+        labels: methodLabels,
+
+        datasets: [
+
+          {
+
+            label: 'Expense',
+
+            data: methodData,
+
+            borderRadius: 6,
+
+            borderSkipped: false,
+
+            backgroundColor: 'rgba(30, 64, 175, 0.7)',
+          }
+
+        ]
+
+      },
+
+      options: {
+
+        responsive: true,
+
+        maintainAspectRatio: false,
+
+        interaction: {
+
+          intersect: false,
+
+          mode: 'index'
+
+        },
+
+        plugins: {
+
+          legend: {
+
+            display: false
+
+          },
+
+          tooltip: {
+
+            callbacks: {
+
+              label: function(context) {
+
+                const value = context.raw || 0;
+
+                return ' ৳ ' + Number(value).toLocaleString(
+                  'en-BD',
+                  {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                  }
+                );
+
+              }
+
+            }
+
+          }
+
+        },
+
+        scales: {
+
+          x: {
+
+            grid: {
+
+              display: false
+
+            },
+
+            ticks: {
+
+              color: getChartColors().text,
+
+              font: {
+                size: 10,
+                weight: '600'
+              }
+
+            }
+
+          },
+
+          y: {
+
+            beginAtZero: true,
+
+            grid: {
+
+              color: getChartColors().grid
+
+            },
+
+            ticks: {
+
+              color: getChartColors().muted,
+
+              font: {
+                size: 10
+              },
+
+              callback: function(value) {
+
+                return '৳ ' + Number(value).toLocaleString(
+                  'en-BD'
+                );
+
+              }
+
+            }
+
+          }
+
+        }
+
+      }
+
+    });
+
+  }
+
+
+  /*
+   * ============================================================
+   * LANGUAGE SUPPORT
+   * ============================================================
+   */
+
+  window.refreshChartsLanguage = function(lang) {
+
+    lang = lang === 'bn' ? 'bn' : 'en';
+
+    if (catChart) {
+
+      catChart.data.labels =
+        lang === 'bn'
+          ? catLabelsBn
+          : catLabelsEn;
+
+      catChart.update();
+
+    }
+
+
+    if (methodChart) {
+
+      if (
+        typeof I18N !== 'undefined' &&
+        I18N[lang] &&
+        I18N[lang].expense
+      ) {
+
+        methodChart.data.datasets[0].label =
+          I18N[lang].expense;
+
+      } else {
+
+        methodChart.data.datasets[0].label =
+          lang === 'bn'
+            ? 'খরচ'
+            : 'Expense';
+
+      }
+
+      methodChart.update();
+
+    }
+
+  };
+
+
+  /*
+   * ============================================================
+   * THEME SUPPORT – update chart colors on theme change
+   * ============================================================
+   */
+
+  function updateChartTheme() {
+    const colors = getChartColors();
+
+    if (catChart) {
+      catChart.options.plugins.legend.labels.color = colors.text;
+      catChart.update();
+    }
+
+    if (methodChart) {
+      methodChart.options.scales.x.ticks.color = colors.text;
+      methodChart.options.scales.y.ticks.color = colors.muted;
+      methodChart.options.scales.y.grid.color = colors.grid;
+      methodChart.update();
+    }
+  }
+
+  window.addEventListener('themeChanged', function(e) {
+    updateChartTheme();
+  });
+
+
+  /*
+   * ============================================================
+   * INITIAL LANGUAGE
+   * ============================================================
+   */
+
+  const dashboardLanguage =
+    localStorage.getItem('financeTrackerLanguage') || 'en';
+
+  if (typeof window.refreshChartsLanguage === 'function') {
+    window.refreshChartsLanguage(dashboardLanguage);
+  }
+
+
+  /*
+   * ============================================================
+   * INITIAL THEME
+   * ============================================================
+   */
+
+  setTimeout(updateChartTheme, 100);
+</script>
+
+{% endblock %}

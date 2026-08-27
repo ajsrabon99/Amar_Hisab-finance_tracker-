@@ -516,8 +516,13 @@ def profile(request):
 
     if request.method == "POST":
         name = request.POST.get("name", "").strip()
+        username = request.POST.get("username", "").strip()
+        email = request.POST.get("email", "").strip()
+        phone = request.POST.get("phone", "").strip()
+        address = request.POST.get("address", "").strip()
         photo = request.FILES.get("photo")
 
+        # Name validation
         if not name:
             messages.error(request, "Please enter your name.")
             return render(
@@ -526,7 +531,63 @@ def profile(request):
                 {"profile": profile}
             )
 
+        # Username validation
+        if not username:
+            messages.error(request, "Username cannot be empty.")
+            return render(
+                request,
+                "tracker/profile.html",
+                {"profile": profile}
+            )
+
+        # Check duplicate username
+        if User.objects.filter(
+            username=username
+        ).exclude(pk=request.user.pk).exists():
+            messages.error(
+                request,
+                "This username is already taken."
+            )
+            return render(
+                request,
+                "tracker/profile.html",
+                {"profile": profile}
+            )
+
+        # Check duplicate email
+        if email and User.objects.filter(
+            email=email
+        ).exclude(pk=request.user.pk).exists():
+            messages.error(
+                request,
+                "This email is already registered."
+            )
+            return render(
+                request,
+                "tracker/profile.html",
+                {"profile": profile}
+            )
+
+        # Update Django User
+        request.user.username = username
+        request.user.email = email
+
+        # IMPORTANT:
+        # Store custom display name in first_name too.
+        request.user.first_name = name
+
+        request.user.save(
+            update_fields=[
+                "username",
+                "email",
+                "first_name",
+            ]
+        )
+
+        # Update Profile
         profile.name = name
+        profile.phone = phone
+        profile.address = address
 
         if photo:
             profile.photo = photo

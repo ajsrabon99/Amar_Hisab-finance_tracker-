@@ -15,4 +15,5 @@ urlpatterns = [
     path('resend-code/', views.resend_code, name='resend_code'),
     path('signup/', views.custom_signup, name='custom_signup'),  
     path("profile/", views.profile, name="profile"),
+    path("app/", views.app_download, name="app_download"),
 ]

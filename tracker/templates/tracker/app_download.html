@@ -1,0 +1,1329 @@
+{% extends "tracker/base.html" %}
+{% load static %}
+
+{% block title %}Amar Hishab App{% endblock %}
+
+{% block content %}
+
+<style>
+    /* =========================================================
+       AMAR HISHAB — APP DOWNLOAD
+       Dark / Light / System + Responsive
+       ========================================================= */
+
+    .app-page {
+        width: 100%;
+        min-height: calc(100vh - 80px);
+        padding: 42px 20px 70px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-sizing: border-box;
+    }
+
+    .app-container {
+        width: 100%;
+        max-width: 1050px;
+        margin: 0 auto;
+    }
+
+
+    /* =========================================================
+       HERO
+       ========================================================= */
+
+    .app-hero {
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+        padding: 68px 45px;
+        box-sizing: border-box;
+
+        border: 1px solid var(--border-color, #e5e7eb);
+        border-radius: 30px;
+
+        background:
+            radial-gradient(
+                circle at 50% -20%,
+                rgba(37, 99, 235, 0.13),
+                transparent 55%
+            ),
+            var(--card-bg, #ffffff);
+
+        box-shadow:
+            0 20px 60px rgba(0, 0, 0, 0.06);
+
+        text-align: center;
+
+        transition:
+            background 0.25s ease,
+            border-color 0.25s ease,
+            box-shadow 0.25s ease;
+    }
+
+
+    /* Decorative glow */
+
+    .app-hero::before {
+        content: "";
+        position: absolute;
+
+        width: 280px;
+        height: 280px;
+
+        top: -170px;
+        left: -120px;
+
+        border-radius: 50%;
+
+        background: rgba(56, 189, 248, 0.07);
+
+        filter: blur(35px);
+
+        pointer-events: none;
+    }
+
+
+    .app-hero::after {
+        content: "";
+        position: absolute;
+
+        width: 300px;
+        height: 300px;
+
+        right: -150px;
+        bottom: -180px;
+
+        border-radius: 50%;
+
+        background: rgba(37, 99, 235, 0.07);
+
+        filter: blur(40px);
+
+        pointer-events: none;
+    }
+
+
+    /* =========================================================
+       APP ICON
+       ========================================================= */
+
+    .app-icon-wrapper {
+        position: relative;
+
+        width: 96px;
+        height: 96px;
+
+        margin: 0 auto 25px;
+
+        z-index: 1;
+    }
+
+
+    .app-icon {
+        width: 96px;
+        height: 96px;
+
+        display: block;
+
+        border-radius: 25px;
+
+        object-fit: cover;
+
+        box-shadow:
+            0 16px 35px rgba(37, 99, 235, 0.20);
+    }
+
+
+    .app-icon-fallback {
+        width: 96px;
+        height: 96px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 25px;
+
+        background:
+            linear-gradient(
+                145deg,
+                #2563eb,
+                #38bdf8
+            );
+
+        color: #ffffff;
+
+        font-size: 31px;
+        font-weight: 800;
+
+        letter-spacing: -1px;
+
+        box-shadow:
+            0 16px 35px rgba(37, 99, 235, 0.20);
+    }
+
+
+    /* =========================================================
+       BADGE
+       ========================================================= */
+
+    .app-badge {
+        position: relative;
+        z-index: 1;
+
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+
+        padding: 7px 13px;
+
+        border-radius: 999px;
+
+        background:
+            rgba(37, 99, 235, 0.08);
+
+        border:
+            1px solid rgba(37, 99, 235, 0.12);
+
+        color: #2563eb;
+
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+
+    .app-badge-dot {
+        width: 7px;
+        height: 7px;
+
+        flex-shrink: 0;
+
+        border-radius: 50%;
+
+        background: #22c55e;
+
+        box-shadow:
+            0 0 0 4px rgba(34, 197, 94, 0.10);
+    }
+
+
+    /* =========================================================
+       TITLE
+       ========================================================= */
+
+    .app-title {
+        position: relative;
+        z-index: 1;
+
+        margin: 20px 0 0;
+
+        color: var(--text-color, #111827);
+
+        font-size: clamp(34px, 5vw, 54px);
+
+        line-height: 1.05;
+
+        letter-spacing: -1.8px;
+
+        font-weight: 800;
+    }
+
+
+    .app-title span {
+        color: #2563eb;
+    }
+
+
+    .app-description {
+        position: relative;
+        z-index: 1;
+
+        width: 100%;
+        max-width: 620px;
+
+        margin: 19px auto 0;
+
+        color: var(--muted-text, #6b7280);
+
+        font-size: 16px;
+        line-height: 1.75;
+    }
+
+
+    /* =========================================================
+       VERSION
+       ========================================================= */
+
+    .version-info {
+        position: relative;
+        z-index: 1;
+
+        margin-top: 20px;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+
+        gap: 10px;
+
+        color: var(--muted-text, #6b7280);
+
+        font-size: 13px;
+    }
+
+
+    .version-info strong {
+        color: var(--text-color, #111827);
+        font-weight: 700;
+    }
+
+
+    .version-divider {
+        width: 4px;
+        height: 4px;
+
+        flex-shrink: 0;
+
+        border-radius: 50%;
+
+        background: var(--muted-text, #9ca3af);
+
+        opacity: 0.6;
+    }
+
+
+    /* =========================================================
+       DOWNLOAD BUTTON
+       ========================================================= */
+
+    .download-area {
+        position: relative;
+        z-index: 1;
+
+        margin-top: 32px;
+    }
+
+
+    .download-button {
+        display: inline-flex;
+
+        align-items: center;
+        justify-content: center;
+
+        gap: 11px;
+
+        min-width: 205px;
+
+        padding: 14px 22px;
+
+        border: 0;
+        border-radius: 13px;
+
+        background: #2563eb;
+
+        color: #ffffff;
+
+        font-size: 15px;
+        font-weight: 700;
+
+        cursor: pointer;
+
+        text-decoration: none;
+
+        box-shadow:
+            0 10px 25px rgba(37, 99, 235, 0.24);
+
+        transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease,
+            background 0.2s ease,
+            opacity 0.2s ease;
+    }
+
+
+    .download-button:hover {
+        background: #1d4ed8;
+
+        transform: translateY(-2px);
+
+        box-shadow:
+            0 14px 30px rgba(37, 99, 235, 0.30);
+    }
+
+
+    .download-button:active {
+        transform: translateY(0);
+    }
+
+
+    .download-button:disabled {
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+
+    .download-button svg {
+        width: 19px;
+        height: 19px;
+
+        flex-shrink: 0;
+    }
+
+
+    .download-note {
+        margin-top: 12px;
+
+        color: var(--muted-text, #6b7280);
+
+        font-size: 12px;
+    }
+
+
+    /* =========================================================
+       INFO CARDS
+       ========================================================= */
+
+    .app-info-grid {
+        display: grid;
+
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+
+        gap: 16px;
+
+        margin-top: 18px;
+    }
+
+
+    .info-card {
+        min-width: 0;
+
+        padding: 23px 20px;
+
+        border-radius: 18px;
+
+        border:
+            1px solid var(--border-color, #e5e7eb);
+
+        background:
+            var(--card-bg, #ffffff);
+
+        text-align: left;
+
+        transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease,
+            background 0.25s ease,
+            border-color 0.25s ease;
+    }
+
+
+    .info-card:hover {
+        transform: translateY(-2px);
+
+        box-shadow:
+            0 12px 30px rgba(0, 0, 0, 0.06);
+    }
+
+
+    .info-icon {
+        width: 40px;
+        height: 40px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        margin-bottom: 14px;
+
+        border-radius: 11px;
+
+        background:
+            rgba(37, 99, 235, 0.08);
+
+        color: #2563eb;
+    }
+
+
+    .info-icon svg {
+        width: 20px;
+        height: 20px;
+    }
+
+
+    .info-title {
+        margin: 0;
+
+        color:
+            var(--text-color, #111827);
+
+        font-size: 14px;
+
+        font-weight: 750;
+    }
+
+
+    .info-text {
+        margin: 6px 0 0;
+
+        color:
+            var(--muted-text, #6b7280);
+
+        font-size: 12px;
+
+        line-height: 1.55;
+    }
+
+
+    /* =========================================================
+       DOWNLOAD OVERLAY
+       ========================================================= */
+
+    .download-overlay {
+        position: fixed;
+
+        inset: 0;
+
+        z-index: 9999;
+
+        display: flex;
+
+        align-items: center;
+        justify-content: center;
+
+        padding: 20px;
+
+        box-sizing: border-box;
+
+        background:
+            rgba(15, 23, 42, 0.48);
+
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+
+        opacity: 0;
+        visibility: hidden;
+
+        pointer-events: none;
+
+        transition:
+            opacity 0.25s ease,
+            visibility 0.25s ease;
+    }
+
+
+    .download-overlay.active {
+        opacity: 1;
+        visibility: visible;
+
+        pointer-events: auto;
+    }
+
+
+    .loader-card {
+        width: min(390px, 100%);
+
+        padding: 34px 28px 30px;
+
+        box-sizing: border-box;
+
+        border-radius: 24px;
+
+        border:
+            1px solid var(--border-color, #e5e7eb);
+
+        background:
+            var(--card-bg, #ffffff);
+
+        box-shadow:
+            0 30px 80px rgba(0, 0, 0, 0.18);
+
+        text-align: center;
+
+        transform:
+            translateY(12px)
+            scale(0.97);
+
+        transition:
+            transform 0.3s ease;
+    }
+
+
+    .download-overlay.active .loader-card {
+        transform:
+            translateY(0)
+            scale(1);
+    }
+
+
+    /* =========================================================
+       LOADER
+       ========================================================= */
+
+    .loader-icon {
+        position: relative;
+
+        width: 72px;
+        height: 72px;
+
+        margin: 0 auto 20px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+
+    .loader-ring {
+        position: absolute;
+
+        inset: 0;
+
+        border-radius: 50%;
+
+        border:
+            3px solid rgba(37, 99, 235, 0.12);
+
+        border-top-color: #2563eb;
+
+        animation:
+            loaderSpin 0.9s linear infinite;
+    }
+
+
+    .loader-icon svg {
+        width: 25px;
+        height: 25px;
+
+        color: #2563eb;
+    }
+
+
+    @keyframes loaderSpin {
+
+        to {
+            transform: rotate(360deg);
+        }
+
+    }
+
+
+    .loader-title {
+        margin: 0;
+
+        color:
+            var(--text-color, #111827);
+
+        font-size: 20px;
+
+        font-weight: 750;
+    }
+
+
+    .loader-message {
+        margin: 9px 0 0;
+
+        color:
+            var(--muted-text, #6b7280);
+
+        font-size: 13px;
+
+        line-height: 1.6;
+    }
+
+
+    .loader-progress {
+        width: 100%;
+        height: 5px;
+
+        margin-top: 24px;
+
+        overflow: hidden;
+
+        border-radius: 999px;
+
+        background:
+            rgba(37, 99, 235, 0.10);
+    }
+
+
+    .loader-progress-bar {
+        width: 0%;
+        height: 100%;
+
+        border-radius: inherit;
+
+        background:
+            linear-gradient(
+                90deg,
+                #2563eb,
+                #38bdf8
+            );
+
+        transition:
+            width 0.15s linear;
+    }
+
+
+    .loader-status {
+        margin-top: 10px;
+
+        color:
+            var(--muted-text, #6b7280);
+
+        font-size: 11px;
+    }
+
+
+    /* =========================================================
+       DARK MODE SUPPORT
+       ========================================================= */
+
+    @media (prefers-color-scheme: dark) {
+
+        /*
+         * Only applies when the website's theme system
+         * follows the system preference.
+         *
+         * Existing explicit theme variables still take priority.
+         */
+
+        .app-hero {
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, 0.20);
+        }
+
+        .info-card {
+            box-shadow: none;
+        }
+
+        .info-card:hover {
+            box-shadow:
+                0 12px 30px rgba(0, 0, 0, 0.20);
+        }
+
+    }
+
+
+    /* =========================================================
+       MOBILE
+       ========================================================= */
+
+    @media (max-width: 760px) {
+
+        .app-page {
+            min-height: auto;
+
+            padding:
+                24px 14px 45px;
+
+            align-items: flex-start;
+        }
+
+
+        .app-hero {
+            padding:
+                48px 20px;
+
+            border-radius: 24px;
+        }
+
+
+        .app-icon-wrapper,
+        .app-icon,
+        .app-icon-fallback {
+            width: 82px;
+            height: 82px;
+        }
+
+
+        .app-icon-wrapper {
+            margin-bottom: 22px;
+        }
+
+
+        .app-icon,
+        .app-icon-fallback {
+            border-radius: 21px;
+        }
+
+
+        .app-icon-fallback {
+            font-size: 27px;
+        }
+
+
+        .app-title {
+            font-size: 34px;
+
+            letter-spacing:
+                -1.2px;
+        }
+
+
+        .app-description {
+            font-size: 14px;
+
+            line-height: 1.7;
+        }
+
+
+        .app-info-grid {
+            grid-template-columns: 1fr;
+
+            gap: 12px;
+        }
+
+
+        .info-card {
+            padding: 20px;
+        }
+
+    }
+
+
+    /* =========================================================
+       SMALL PHONES
+       ========================================================= */
+
+    @media (max-width: 420px) {
+
+        .app-page {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+
+
+        .app-hero {
+            padding:
+                40px 16px;
+
+            border-radius: 21px;
+        }
+
+
+        .app-title {
+            font-size: 30px;
+        }
+
+
+        .app-description {
+            font-size: 13px;
+        }
+
+
+        .version-info {
+            gap: 7px;
+
+            font-size: 12px;
+        }
+
+
+        .download-button {
+            width: 100%;
+
+            min-width: 0;
+
+            padding:
+                14px 18px;
+        }
+
+
+        .download-note {
+            font-size: 11px;
+        }
+
+
+        .loader-card {
+            padding:
+                30px 20px 26px;
+
+            border-radius: 21px;
+        }
+
+    }
+
+
+    /* =========================================================
+       REDUCED MOTION
+       ========================================================= */
+
+    @media (prefers-reduced-motion: reduce) {
+
+        .app-hero,
+        .info-card,
+        .download-button,
+        .download-overlay,
+        .loader-card,
+        .loader-progress-bar {
+            transition: none !important;
+        }
+
+
+        .loader-ring {
+            animation: none !important;
+        }
+
+    }
+
+</style>
+
+<div class="app-page">
+
+```
+<div class="app-container">
+
+    <!-- =====================================================
+         HERO
+         ====================================================== -->
+
+    <section class="app-hero">
+
+        <div class="app-icon-wrapper">
+
+            {% if app_logo %}
+
+                <img
+                    src="{{ app_logo }}"
+                    alt="Amar Hishab"
+                    class="app-icon"
+                >
+
+            {% else %}
+
+                <div class="app-icon-fallback">
+                    AH
+                </div>
+
+            {% endif %}
+
+        </div>
+
+
+        <div class="app-badge">
+
+            <span class="app-badge-dot"></span>
+
+            Android App Available
+
+        </div>
+
+
+        <h1 class="app-title">
+            Amar <span>Hishab</span>
+        </h1>
+
+
+        <p class="app-description">
+            Take your personal finances with you.
+            Track income, expenses, transfers and your financial activity
+            from one simple Android app.
+        </p>
+
+
+        <div class="version-info">
+
+            <span>
+                Latest Release
+            </span>
+
+            <span class="version-divider"></span>
+
+            <strong>
+                v1.0.2
+            </strong>
+
+            <span class="version-divider"></span>
+
+            <span>
+                Android
+            </span>
+
+        </div>
+
+
+        <div class="download-area">
+
+            <button
+                type="button"
+                class="download-button"
+                id="downloadApkButton"
+            >
+
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+
+                <span>
+                    Download APK
+                </span>
+
+            </button>
+
+
+            <div class="download-note">
+                You'll be redirected to GitHub Releases
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         INFO CARDS
+         ====================================================== -->
+
+    <div class="app-info-grid">
+
+        <div class="info-card">
+
+            <div class="info-icon">
+
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <rect
+                        x="5"
+                        y="2"
+                        width="14"
+                        height="20"
+                        rx="2"
+                    />
+
+                    <line
+                        x1="12"
+                        y1="18"
+                        x2="12.01"
+                        y2="18"
+                    />
+
+                </svg>
+
+            </div>
+
+
+            <h3 class="info-title">
+                Built for Android
+            </h3>
+
+
+            <p class="info-text">
+                A dedicated Android experience for managing
+                your personal finances anywhere.
+            </p>
+
+        </div>
+
+
+        <div class="info-card">
+
+            <div class="info-icon">
+
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path d="M12 2v20"/>
+
+                    <path
+                        d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"
+                    />
+
+                </svg>
+
+            </div>
+
+
+            <h3 class="info-title">
+                Manage Your Money
+            </h3>
+
+
+            <p class="info-text">
+                Keep your income, expenses and transfers
+                organized in one place.
+            </p>
+
+        </div>
+
+
+        <div class="info-card">
+
+            <div class="info-icon">
+
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path d="M20 6L9 17l-5-5"/>
+                </svg>
+
+            </div>
+
+
+            <h3 class="info-title">
+                Official Release
+            </h3>
+
+
+            <p class="info-text">
+                APK releases are published through the
+                official Amar Hishab GitHub repository.
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+```
+
+</div>
+
+<!-- =========================================================
+     DOWNLOAD LOADING OVERLAY
+     ========================================================== -->
+
+<div
+    class="download-overlay"
+    id="downloadOverlay"
+    aria-hidden="true"
+>
+
+```
+<div class="loader-card">
+
+    <div class="loader-icon">
+
+        <div class="loader-ring"></div>
+
+        <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+        >
+            <path d="M12 3v12"/>
+
+            <path d="M7 10l5 5 5-5"/>
+
+            <path d="M5 21h14"/>
+
+        </svg>
+
+    </div>
+
+
+    <h2 class="loader-title">
+        Preparing your download
+    </h2>
+
+
+    <p
+        class="loader-message"
+        id="loaderMessage"
+    >
+        Getting the latest Amar Hishab release ready...
+    </p>
+
+
+    <div class="loader-progress">
+
+        <div
+            class="loader-progress-bar"
+            id="loaderProgress"
+        ></div>
+
+    </div>
+
+
+    <div
+        class="loader-status"
+        id="loaderStatus"
+    >
+        Connecting to GitHub...
+    </div>
+
+</div>
+```
+
+</div>
+
+<script>
+(function () {
+
+    const downloadButton =
+        document.getElementById("downloadApkButton");
+
+    const overlay =
+        document.getElementById("downloadOverlay");
+
+    const progressBar =
+        document.getElementById("loaderProgress");
+
+    const loaderMessage =
+        document.getElementById("loaderMessage");
+
+    const loaderStatus =
+        document.getElementById("loaderStatus");
+
+
+    const githubReleaseUrl =
+        "https://github.com/ajsrabon99/Amar-Hishab-Android/releases/latest";
+
+
+    if (!downloadButton) {
+        return;
+    }
+
+
+    downloadButton.addEventListener("click", function () {
+
+        if (downloadButton.disabled) {
+            return;
+        }
+
+
+        downloadButton.disabled = true;
+
+        overlay.classList.add("active");
+
+        overlay.setAttribute(
+            "aria-hidden",
+            "false"
+        );
+
+
+        let progress = 0;
+
+
+        const messages = [
+            {
+                at: 0,
+                text: "Getting the latest Amar Hishab release ready...",
+                status: "Connecting to GitHub..."
+            },
+
+            {
+                at: 25,
+                text: "Checking the latest Android version...",
+                status: "Checking release..."
+            },
+
+            {
+                at: 50,
+                text: "Preparing your download...",
+                status: "Preparing APK..."
+            },
+
+            {
+                at: 75,
+                text: "Almost there...",
+                status: "Finalizing..."
+            },
+
+            {
+                at: 95,
+                text: "Opening GitHub Releases...",
+                status: "Ready!"
+            }
+        ];
+
+
+        const duration = 3800;
+
+        const intervalTime = 40;
+
+        const totalSteps =
+            duration / intervalTime;
+
+        const increment =
+            100 / totalSteps;
+
+
+        const loaderInterval =
+            setInterval(function () {
+
+                progress += increment;
+
+
+                if (progress >= 100) {
+                    progress = 100;
+                }
+
+
+                progressBar.style.width =
+                    progress + "%";
+
+
+                const currentMessage =
+                    messages
+                        .slice()
+                        .reverse()
+                        .find(function (item) {
+
+                            return progress >= item.at;
+
+                        });
+
+
+                if (currentMessage) {
+
+                    loaderMessage.textContent =
+                        currentMessage.text;
+
+                    loaderStatus.textContent =
+                        currentMessage.status;
+
+                }
+
+
+                if (progress >= 100) {
+
+                    clearInterval(loaderInterval);
+
+
+                    setTimeout(function () {
+
+                        window.location.href =
+                            githubReleaseUrl;
+
+                    }, 250);
+
+                }
+
+            }, intervalTime);
+
+    });
+
+})();
+</script>
+
+{% endblock %}

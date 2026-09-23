@@ -15,7 +15,6 @@ from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-
 from .models import (
     Category,
     PaymentMethod,
@@ -607,4 +606,13 @@ def profile(request):
         {
             "profile": profile,
         }
+    )
+    
+from django.shortcuts import redirect
+
+@login_required
+def app_download(request):
+    return render(
+        request,
+        "tracker/app_download.html"
     )

@@ -32,3 +32,5 @@ class TransferAdmin(admin.ModelAdmin):
     list_filter = ("date", "from_method", "to_method")
     date_hierarchy = "date"
     search_fields = ("note", "owner__username", "owner__email")
+    
+    
